@@ -36,10 +36,10 @@ evaluation_results.json
 .env
 
 # Datasets (only include scripts to generate/download them)
-docs/*.txt
-docs/*.md
-docs/*.pdf
-!docs/.gitkeep
+# docs/*.txt
+# docs/*.md
+# docs/*.pdf
+# !docs/.gitkeep
 
 # IDEs
 .vscode/

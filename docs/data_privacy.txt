@@ -1,0 +1,22 @@
+DATA PRIVACY AND SECURITY POLICY
+
+Data Collection
+We collect only the minimum data necessary to provide our services.
+This includes: name, email address, purchase history, and device information.
+
+Data Usage
+Your data is never sold to third parties under any circumstances.
+We use collected data solely to improve service quality and process transactions.
+
+Data Deletion
+You may request complete deletion of your data at any time.
+Send a deletion request to privacy@example.com. Requests are processed within 14 days.
+
+Security
+All user data is encrypted at rest using AES-256 encryption.
+Data in transit is protected using TLS 1.3.
+We conduct quarterly third-party security audits.
+
+GDPR Compliance
+We are fully compliant with GDPR regulations for EU customers.
+A Data Processing Agreement (DPA) is available upon request.
