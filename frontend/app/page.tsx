@@ -110,8 +110,26 @@ export default function LandingPage() {
 
             <main>
                 {/* HERO SECTION */}
-                <section id="hero" className="pt-32 pb-24 border-b border-border dot-grid" style={{ backgroundImage: 'radial-gradient(#1f1f1f 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-                    <div className="container mx-auto px-6 md:px-12 grid lg:grid-cols-2 gap-16 items-center">
+                <section id="hero" className="relative pt-32 pb-24 border-b border-border overflow-hidden">
+                    {/* Background Image Layer */}
+                    <div
+                        className="absolute inset-0 z-0 opacity-40 grayscale"
+                        style={{
+                            backgroundImage: 'url("/img3.jpeg")',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                        }}
+                    />
+                    {/* Dot Grid Layer */}
+                    <div
+                        className="absolute inset-0 z-10 opacity-50"
+                        style={{
+                            backgroundImage: 'radial-gradient(#1f1f1f 1px, transparent 1px)',
+                            backgroundSize: '40px 40px'
+                        }}
+                    />
+
+                    <div className="container mx-auto px-6 md:px-12 grid lg:grid-cols-2 gap-16 items-center relative z-20">
                         <Reveal>
                             <div className="flex items-center space-x-2 mb-8">
                                 <div className="w-2 h-2 bg-neutral-400"></div>
