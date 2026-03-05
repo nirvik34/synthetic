@@ -249,7 +249,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
                                             >
                                                 {getDocIcon(doc)}
                                             </span>
-                                            <span className="truncate flex-1 tracking-wider text-[13px]">{doc}</span>
+                                            <span className="truncate flex-1 tracking-wider text-[14px]">{doc}</span>
                                         </button>
                                     ))
                             ) : (
@@ -276,7 +276,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
                                         <span className="material-symbols-rounded text-base text-[#525252] group-hover:text-white transition-opacity">
                                             history
                                         </span>
-                                        <span className="truncate flex-1 tracking-wider text-[13px]">{q}</span>
+                                        <span className="truncate flex-1 tracking-wider text-[14px]">{q}</span>
                                     </button>
                                 ))
                             ) : (

@@ -227,7 +227,7 @@ export default function ChatArea({ messages, onFollowUp, onCitationClick }: Chat
                     return (
                         <div key={msg.id} className="flex justify-end fade-up">
                             <div
-                                className="max-w-xl px-6 py-4 border border-white bg-[#111111] text-[14px] font-light text-white leading-relaxed rounded-2xl rounded-tr-none"
+                                className="max-w-xl px-6 py-4 border border-white bg-[#111111] text-[15px] font-light text-white leading-relaxed rounded-2xl rounded-tr-none"
                                 dangerouslySetInnerHTML={{ __html: esc(msg.text || "") }}
                             />
                         </div>
@@ -304,7 +304,7 @@ export default function ChatArea({ messages, onFollowUp, onCitationClick }: Chat
                                 </div>
                                 <div className="bg-[#0A0A0A] border border-[#262626] overflow-hidden rounded-2xl">
                                     <div
-                                        className={`px-6 py-6 text-[14px] leading-relaxed font-light ${isNF ? "text-[#8a8a8a] italic" : "text-white"
+                                        className={`px-6 py-6 text-[15px] leading-relaxed font-light ${isNF ? "text-[#8a8a8a] italic" : "text-white"
                                             }`}
                                         dangerouslySetInnerHTML={{
                                             __html: renderWithFootnotes(msg.data.answer),

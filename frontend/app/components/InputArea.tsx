@@ -53,7 +53,7 @@ export default function InputArea({
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-[13px] py-4 px-4 resize-none max-h-40 placeholder-[#8a8a8a] text-white outline-none leading-relaxed tracking-widest font-light"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-[14px] py-4 px-4 resize-none max-h-40 placeholder-[#8a8a8a] text-white outline-none leading-relaxed tracking-widest font-light"
                         />
                         <div className="pb-2 pr-2 shrink-0 flex items-center gap-3">
                             <button className="p-2 text-[#525252] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#262626] rounded-full">
