@@ -1,9 +1,14 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, Field, field_validator
 
+class ConversationTurn(BaseModel):
+    question: str
+    answer: str
+
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=3, max_length=1000, description='The question to answer from ingested documents.', examples=['What is the refund policy?'])
     top_k: Optional[int] = Field(default=5, ge=1, le=20, description='Number of document chunks to retrieve (1–20).')
+    context: Optional[List[ConversationTurn]] = Field(default=None, description='Previous conversation turns for follow-up context.')
 
     @field_validator('question')
     @classmethod
@@ -27,6 +32,7 @@ class AskResponse(BaseModel):
     sources: List[SourceItem] = Field(..., description='Citations with document + snippet + score.')
     confidence: Literal['high', 'medium', 'low'] = Field(..., description='Confidence level based on retrieval scores.')
     question: str = Field(..., description='Echo of the original question.')
+    follow_ups: List[str] = Field(default_factory=list, description='Suggested follow-up questions.')
 
 class IngestResponse(BaseModel):
     status: Literal['success', 'error']

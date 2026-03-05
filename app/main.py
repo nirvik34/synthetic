@@ -11,7 +11,7 @@ from app.models import AskRequest, AskResponse, IngestRequest, IngestResponse, H
 from app.ingestion import ingest_documents
 from app.embeddings import build_vector_store, load_vector_store, get_embedding_model, get_chroma_client
 from app.retrieval import retrieve, format_sources
-from app.generation import generate_answer, get_llm_pipeline, NOT_FOUND_RESPONSE
+from app.generation import generate_answer, generate_follow_ups, get_llm_pipeline, NOT_FOUND_RESPONSE
 
 load_dotenv()
 
@@ -110,13 +110,55 @@ async def ask(request: AskRequest):
         raise HTTPException(status_code=503, detail='Vector store not initialized. POST /ingest to index your documents first.')
     logger.info(f"Question received: '{request.question}'")
     results, confidence = retrieve(query=request.question, collection=app_state['collection'], top_k=request.top_k or TOP_K, similarity_threshold=SIMILARITY_THRESHOLD, embedding_model_name=EMBEDDING_MODEL_NAME)
-    answer = generate_answer(question=request.question, retrieved_chunks=results, model_name=LLM_MODEL_NAME)
+
+    # Build conversation context if provided
+    conv_context = None
+    if request.context:
+        conv_context = [{'question': t.question, 'answer': t.answer} for t in request.context]
+
+    answer = generate_answer(question=request.question, retrieved_chunks=results, model_name=LLM_MODEL_NAME, conversation_context=conv_context)
     sources = [SourceItem(document=s['document'], snippet=s['snippet'], score=s['score']) for s in format_sources(results)]
-    if answer == NOT_FOUND_RESPONSE:
+
+    # ── Hallucination guard ──────────────────────────────────────────────
+    # 1. Direct checks
+    is_not_found = (
+        answer == NOT_FOUND_RESPONSE
+        or confidence == 'low'
+        or 'could not find' in answer.lower()
+    )
+
+    # 2. Content-overlap check: do the query's key terms actually appear
+    #    in any retrieved snippet? If not, the re-ranker gave a false positive.
+    if not is_not_found and results:
+        stopwords = {'what', 'is', 'the', 'a', 'an', 'of', 'in', 'on', 'and', 'or',
+                      'to', 'for', 'this', 'that', 'are', 'was', 'were', 'be', 'been',
+                      'has', 'have', 'had', 'do', 'does', 'did', 'will', 'would', 'can',
+                      'could', 'should', 'may', 'might', 'how', 'who', 'where', 'when',
+                      'why', 'which', 'with', 'from', 'about', 'me', 'my', 'i', 'you',
+                      'your', 'it', 'its', 'they', 'them', 'their', 'we', 'our', 'give',
+                      'there', 'here', 'all', 'any', 'some', 'no', 'not', 'but'}
+        query_words = [w for w in request.question.lower().split() if len(w) > 2 and w not in stopwords]
+        if query_words:
+            all_snippets = ' '.join(r.snippet.lower() for r in results)
+            hits = sum(1 for w in query_words if w in all_snippets)
+            overlap_ratio = hits / len(query_words)
+            logger.debug(f'Overlap check: {hits}/{len(query_words)} words found ({overlap_ratio:.0%}), words={query_words}')
+            if overlap_ratio < 0.25:
+                is_not_found = True
+                logger.info(f'Hallucination guard: query terms {query_words} not found in snippets (overlap={overlap_ratio:.0%})')
+
+    if is_not_found:
+        answer = NOT_FOUND_RESPONSE
         confidence = 'low'
         sources = []
-    logger.info(f'Answer generated | confidence={confidence} | sources={len(sources)}')
-    return AskResponse(answer=answer, sources=sources, confidence=confidence, question=request.question)
+        follow_ups = []
+        logger.info(f'Answer blocked by hallucination guard | confidence={confidence}')
+    else:
+        # Generate follow-up suggestions only for valid answers
+        follow_ups = generate_follow_ups(question=request.question, answer=answer, sources=results, model_name=LLM_MODEL_NAME)
+
+    logger.info(f'Answer generated | confidence={confidence} | sources={len(sources)} | follow_ups={len(follow_ups)}')
+    return AskResponse(answer=answer, sources=sources, confidence=confidence, question=request.question, follow_ups=follow_ups)
 
 
 @app.get('/documents', tags=['Information'])

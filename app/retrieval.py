@@ -59,11 +59,12 @@ def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similari
 def compute_confidence(results: List[RetrievalResult]) -> str:
     if not results:
         return 'low'
-    # Use a lower threshold for legal/complex text
     max_score = max((r.score for r in results))
-    if max_score >= 0.25:  # Lowered from 0.50
+    avg_score = sum(r.score for r in results) / len(results)
+    # Use both max and average to determine confidence
+    if max_score >= 0.55 and avg_score >= 0.30:
         return 'high'
-    elif max_score >= 0.10:  # Lowered from 0.30
+    elif max_score >= 0.35 and avg_score >= 0.15:
         return 'medium'
     return 'low'
 
