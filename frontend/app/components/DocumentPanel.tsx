@@ -47,7 +47,10 @@ export default function DocumentPanel({
     }, []);
 
     useEffect(() => {
-        loadHealth();
+        const init = async () => {
+            await loadHealth();
+        };
+        init();
     }, [loadHealth, refreshKey]);
 
     const getDocIcon = (doc: string) => {

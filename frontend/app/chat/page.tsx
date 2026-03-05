@@ -7,7 +7,7 @@ import ChatArea from "../components/ChatArea";
 import InputArea from "../components/InputArea";
 import MiniSidebar from "../components/MiniSidebar";
 import DocumentPanel from "../components/DocumentPanel";
-import { postAsk, fetchDocuments, fetchDocumentContent } from "../lib/api";
+import { postAsk, fetchDocuments } from "../lib/api";
 import type { ChatMessage, HistoryEntry, ConversationTurn } from "../lib/types";
 
 export default function Home() {
@@ -93,7 +93,7 @@ export default function Home() {
     }, 10);
   }, []);
 
-  const updateHistory = useCallback((q: string, data: any, ms: number) => {
+  const updateHistory = useCallback((q: string, data: HistoryEntry['data'], ms: number) => {
     setHistoryLog((prev) => [...prev, { q, data, ms }]);
     setSidebarHistory((prev) => {
       const filtered = prev.filter(item => item !== q);
@@ -206,12 +206,10 @@ export default function Home() {
       setSelectedDocContent("Error generating AI summary. Please check your connection.");
       console.error(e);
     }
-  }, [topK]);
+  }, []);
 
 
-  const setQuestion = (q: string) => {
-    setQ(q);
-  };
+
 
   const handleDataChange = () => {
     setDataRefreshKey((k) => k + 1);

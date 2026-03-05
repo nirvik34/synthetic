@@ -69,8 +69,13 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
     };
 
     useEffect(() => {
-        checkHealth();
-        const iv = setInterval(checkHealth, 30000);
+        const init = async () => {
+            await checkHealth();
+        };
+        init();
+        const iv = setInterval(() => {
+            void checkHealth();
+        }, 30000);
         return () => clearInterval(iv);
     }, [checkHealth]);
 
