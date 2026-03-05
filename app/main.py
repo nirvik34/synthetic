@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
     logger.info('=== RAG Q&A Bot shutting down ===')
 
 
-app = FastAPI(title='Document Q&A Bot (RAG)', description='Answer questions from your documents using Retrieval-Augmented Generation. POST /ingest to index docs, then POST /ask to query.', version='1.0.0', lifespan=lifespan)
+app = FastAPI(title='Deepdox — Local RAG Document Q&A', description='Answer questions from your documents using Retrieval-Augmented Generation. POST /ingest to index docs, then POST /ask to query.', version='1.0.0', lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
 
 

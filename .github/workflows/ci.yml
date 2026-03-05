@@ -28,6 +28,8 @@ jobs:
       - name: Run Backend Tests
         env:
           PYTHONPATH: .
+          OPENBLAS_CORETYPE: GENERIC
+          TOKENIZERS_PARALLELISM: "false"
         run: |
           pytest tests/
 
@@ -71,6 +73,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: documind-rag:latest
+          tags: deepdox:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
