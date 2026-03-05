@@ -96,3 +96,35 @@ INFO:     127.0.0.1:50146 - "POST /ask HTTP/1.1" 200 OK
 13:23:48 | WARNING | LLM could not find answer for: 'What are the nuclear launch codes in section 7?'
 13:23:48 | INFO | Answer generated | confidence=low | sources=0
 INFO:     127.0.0.1:50148 - "POST /ask HTTP/1.1" 200 OK
+13:28:50 | INFO | Question received: 'What is the governing law of this agreement?'
+13:28:51 | WARNING | LLM could not find answer for: 'What is the governing law of this agreement?'
+13:28:51 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:57158 - "POST /ask HTTP/1.1" 200 OK
+13:29:59 | INFO | Starting ingestion from: docs
+13:29:59 | INFO | Found 12 document(s) to ingest
+13:29:59 | INFO | Processing: wiki_20220301.en_Algorithm.txt
+13:29:59 | INFO | Processing: cuad_contract_3.txt
+13:29:59 | INFO | Processing: cuad_contract_4.txt
+13:29:59 | INFO | Processing: wiki_20220301.en_List_of_computer_scientists.txt
+13:29:59 | INFO | Processing: wiki_20220301.en_Integer_factorization.txt
+13:29:59 | INFO | Processing: cuad_contract_0.txt
+13:29:59 | INFO | Processing: faq.md
+13:29:59 | INFO | Processing: cuad_contract_2.txt
+13:29:59 | INFO | Processing: company_policies.txt
+13:29:59 | INFO | Processing: data_privacy.txt
+13:29:59 | INFO | Processing: wiki_20220301.en_Artificial_intelligence.txt
+13:29:59 | INFO | Processing: cuad_contract_1.txt
+13:29:59 | SUCCESS | Ingestion complete: 1071 total chunks from 12 file(s)
+13:29:59 | INFO | Cleared existing ChromaDB collection.
+Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+13:29:59 | INFO | Embedding 1071 chunks in batches of 64...
+Embedding:   0%|          | 0/17 [00:00<?, ?it/s]Failed to send telemetry event CollectionAddEvent: capture() takes 1 positional argument but 3 were given
+Embedding:   6%|▌         | 1/17 [00:00<00:10,  1.50it/s]Embedding:  12%|█▏        | 2/17 [00:01<00:09,  1.55it/s]Embedding:  18%|█▊        | 3/17 [00:01<00:09,  1.52it/s]Embedding:  24%|██▎       | 4/17 [00:02<00:07,  1.75it/s]Embedding:  29%|██▉       | 5/17 [00:02<00:06,  1.78it/s]Embedding:  35%|███▌      | 6/17 [00:03<00:06,  1.77it/s]Embedding:  41%|████      | 7/17 [00:05<00:09,  1.06it/s]Embedding:  47%|████▋     | 8/17 [00:05<00:07,  1.23it/s]Embedding:  53%|█████▎    | 9/17 [00:06<00:05,  1.39it/s]Embedding:  59%|█████▉    | 10/17 [00:06<00:04,  1.48it/s]Embedding:  65%|██████▍   | 11/17 [00:07<00:03,  1.57it/s]Embedding:  71%|███████   | 12/17 [00:09<00:04,  1.05it/s]Embedding:  76%|███████▋  | 13/17 [00:09<00:03,  1.18it/s]Embedding:  82%|████████▏ | 14/17 [00:10<00:02,  1.34it/s]Embedding:  88%|████████▊ | 15/17 [00:10<00:01,  1.39it/s]Embedding:  94%|█████████▍| 16/17 [00:11<00:00,  1.50it/s]Embedding: 100%|██████████| 17/17 [00:12<00:00,  1.10it/s]Embedding: 100%|██████████| 17/17 [00:12<00:00,  1.32it/s]
+13:30:12 | SUCCESS | Vector store built: 1071 chunks indexed.
+13:30:12 | SUCCESS | Ingestion complete: 12 docs, 1071 chunks
+INFO:     127.0.0.1:40106 - "POST /ingest HTTP/1.1" 200 OK
+13:30:56 | INFO | Question received: 'What is the governing law of this agreement?'
+Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+13:30:57 | WARNING | LLM could not find answer for: 'What is the governing law of this agreement?'
+13:30:57 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50836 - "POST /ask HTTP/1.1" 200 OK

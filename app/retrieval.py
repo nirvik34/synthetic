@@ -26,7 +26,7 @@ def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similari
     metadatas = results['metadatas'][0]
     distances = results['distances'][0]
     for i in range(len(ids)):
-        sim_score = 1.0 - distances[i] if distances[i] < 1 else 0.0
+        sim_score = max(0.0, 1.0 - (distances[i] / 2.0))
         if sim_score < similarity_threshold:
             continue
         candidates.append(RetrievalResult(chunk_id=ids[i], document=metadatas[i]['doc_name'], snippet=documents[i], score=sim_score, char_start=int(metadatas[i]['char_start']), char_end=int(metadatas[i]['char_end'])))
@@ -56,9 +56,9 @@ def compute_confidence(results: List[RetrievalResult]) -> str:
     if not results:
         return 'low'
     max_score = max((r.score for r in results))
-    if max_score >= 0.65:
+    if max_score >= 0.50:
         return 'high'
-    elif max_score >= 0.4:
+    elif max_score >= 0.30:
         return 'medium'
     return 'low'
 
