@@ -120,12 +120,12 @@ class TestConfidenceScoring:
 
     def test_medium_confidence(self):
         from app.retrieval import compute_confidence, RetrievalResult
-        results = [RetrievalResult('id1', 'doc.txt', 'text', 0.52, 0, 100)]
+        results = [RetrievalResult('id1', 'doc.txt', 'text', 0.42, 0, 100)]
         assert compute_confidence(results) == 'medium'
 
     def test_low_confidence(self):
         from app.retrieval import compute_confidence, RetrievalResult
-        results = [RetrievalResult('id1', 'doc.txt', 'text', 0.33, 0, 100)]
+        results = [RetrievalResult('id1', 'doc.txt', 'text', 0.23, 0, 100)]
         assert compute_confidence(results) == 'low'
 
     def test_empty_results_returns_low(self):
