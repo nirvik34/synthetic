@@ -171,7 +171,7 @@ async def ask(request: AskRequest):
                       'more', 'details', 'find', 'get', 'list', 'please', 'help'}
         
         # Strip common punctuation from words
-        raw_words = [w.strip('?.,!"').lower() for w in request.question.split()]
+        raw_words = [w.strip('?.,!\"').lower() for w in request.question.split()]
         query_words = [w for w in raw_words if len(w) > 2 and w not in stopwords]
         
         if query_words:
@@ -179,15 +179,15 @@ async def ask(request: AskRequest):
             # Check if any query word appears in snippets OR matches a retrieved document name
             found_in_snippets = [w for w in query_words if w in all_snippets]
             
-            # Check for document name match (special handling for wiki/cuad filenames)
+            # Check for document name match — also check partial word matches
+            # e.g. "policy" should match document name "company_policies.txt"
             found_in_filenames = []
             mentions_filename = False
+            all_doc_names = ' '.join(r.document.lower().replace('_', ' ').replace('.', ' ') for r in results)
             for w in query_words:
-                for r in results:
-                    if w in r.document.lower():
-                        found_in_filenames.append(w)
-                        mentions_filename = True
-                        break
+                if w in all_doc_names:
+                    found_in_filenames.append(w)
+                    mentions_filename = True
             
             hits = len(set(found_in_snippets + found_in_filenames))
             overlap_ratio = hits / len(query_words)
@@ -199,13 +199,13 @@ async def ask(request: AskRequest):
             if mentions_filename:
                 threshold = 0.10
             else:
-                threshold = 0.20 if confidence != 'low' else 0.40
+                threshold = 0.20 if confidence != 'low' else 0.25
                 
             if overlap_ratio < threshold:
                 is_not_found = True
                 hallucination_reason = f"Low overlap ratio ({overlap_ratio:.0%}) with query terms {query_words}"
         else:
-            # If no key terms (e.g. "tell me more"), rely on confidence
+            # If no key terms (e.g. "tell me more"), allow if confidence is not low
             if confidence == 'low':
                 is_not_found = True
                 hallucination_reason = "No key terms in query and low confidence retrieval"

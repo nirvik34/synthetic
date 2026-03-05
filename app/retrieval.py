@@ -42,10 +42,19 @@ def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similari
         if np.isscalar(cross_scores):
             cross_scores = [cross_scores]
         
-        for i, c in enumerate(candidates):
-            # Hybrid scoring: 30% Bi-Encoder, 70% Cross-Encoder
-            # This prevents 0.0001 cross-scores from killing 0.8 bi-sim matches
-            c.score = float(0.3 * c.score + 0.7 * cross_scores[i])
+        # Check if the cross-encoder is actually producing useful scores.
+        # If ALL scores are near-zero (< 0.01), the model isn't helping —
+        # fall back to pure bi-encoder scores instead of letting zeros
+        # destroy valid matches.
+        max_cross = float(max(cross_scores))
+        if max_cross < 0.01:
+            logger.warning(f'Cross-encoder returned near-zero scores (max={max_cross:.6f}), using bi-encoder scores only.')
+            # Keep original bi-encoder scores, no hybrid mixing
+        else:
+            for i, c in enumerate(candidates):
+                # Hybrid scoring: 50% Bi-Encoder, 50% Cross-Encoder
+                # Balanced blend prevents either model from dominating
+                c.score = float(0.5 * c.score + 0.5 * cross_scores[i])
             
         candidates.sort(key=lambda x: x.score, reverse=True)
         retrieved = candidates[:top_k]
@@ -62,9 +71,10 @@ def compute_confidence(results: List[RetrievalResult]) -> str:
     max_score = max((r.score for r in results))
     avg_score = sum(r.score for r in results) / len(results)
     # Use both max and average to determine confidence
-    if max_score >= 0.55 and avg_score >= 0.30:
+    # Thresholds calibrated for bi-encoder scores (0.0-1.0 cosine range)
+    if max_score >= 0.50 and avg_score >= 0.25:
         return 'high'
-    elif max_score >= 0.35 and avg_score >= 0.15:
+    elif max_score >= 0.30 and avg_score >= 0.12:
         return 'medium'
     return 'low'
 
