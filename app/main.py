@@ -167,7 +167,8 @@ async def ask(request: AskRequest):
                       'your', 'it', 'its', 'they', 'them', 'their', 'we', 'our', 'give',
                       'there', 'here', 'all', 'any', 'some', 'no', 'not', 'but', 'summary',
                       'detailed', 'analysis', 'information', 'points', 'main', 'document',
-                      'show', 'tell', 'explain', 'brief', 'review', 'about'}
+                      'show', 'tell', 'explain', 'brief', 'review', 'about', 'provide', 
+                      'more', 'details', 'find', 'get', 'list', 'please', 'help'}
         
         # Strip common punctuation from words
         raw_words = [w.strip('?.,!"').lower() for w in request.question.split()]
@@ -177,7 +178,16 @@ async def ask(request: AskRequest):
             all_snippets = ' '.join(r.snippet.lower() for r in results)
             # Check if any query word appears in snippets OR matches a retrieved document name
             found_in_snippets = [w for w in query_words if w in all_snippets]
-            found_in_filenames = [w for w in query_words if any(w in r.document.lower() for r in results)]
+            
+            # Check for document name match (special handling for wiki/cuad filenames)
+            found_in_filenames = []
+            mentions_filename = False
+            for w in query_words:
+                for r in results:
+                    if w in r.document.lower():
+                        found_in_filenames.append(w)
+                        mentions_filename = True
+                        break
             
             hits = len(set(found_in_snippets + found_in_filenames))
             overlap_ratio = hits / len(query_words)
@@ -185,8 +195,12 @@ async def ask(request: AskRequest):
             logger.debug(f'Overlap check: {hits}/{len(query_words)} words found ({overlap_ratio:.0%}), words={query_words}')
             
             # If overlap is very low, block it.
-            # But if confidence is high/medium, be more lenient.
-            threshold = 0.20 if confidence != 'low' else 0.40
+            # Be much more lenient if a filename was explicitly mentioned (meta-query)
+            if mentions_filename:
+                threshold = 0.10
+            else:
+                threshold = 0.20 if confidence != 'low' else 0.40
+                
             if overlap_ratio < threshold:
                 is_not_found = True
                 hallucination_reason = f"Low overlap ratio ({overlap_ratio:.0%}) with query terms {query_words}"

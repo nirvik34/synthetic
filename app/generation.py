@@ -35,10 +35,31 @@ def build_prompt(question: str, retrieved_chunks: List[RetrievalResult], convers
         conv_history = '\n'.join(history_parts) + '\n\n'
 
     is_legal = any((kw in res.document.lower() for res in retrieved_chunks for kw in ['cuad', 'contract', 'agreement', 'legal']))
+    is_meta = any((kw in question.lower() for kw in ['summary', 'details', 'more info', 'tell me about', 'show me']))
+    
     if is_legal:
-        instructions = "You are a legal assistant. Answer the question comprehensively using the provided legal context. Reference source numbers like [1], [2] when citing information. Look for specific conditions, notice periods, and clause numbers. If the question is about 'conditions', list all relevant triggers (e.g., convenience, breach, insolvency). If the answer is definitely not in the context, say 'I could not find an answer in the provided documents.'"
+        instructions = (
+            "You are a professional legal assistant. Answer the user's question comprehensively and accurately using ONLY the provided legal context. "
+            "Write in full sentences and provide a detailed explanation. "
+            "IMPORTANT: Always reference source numbers like [1], [2] at the end of sentences when citing information. "
+            "DO NOT just output a number or a source reference. Provide a real textual answer first."
+        )
+        if is_meta:
+            instructions += " Provide a logical summary of the key points in the documents."
+        else:
+            instructions += " If the answer is not in the context, say 'I could not find an answer in the provided documents.'"
     else:
-        instructions = "You are a helpful assistant. Answer the question using ONLY the provided context. Reference source numbers like [1], [2] when citing information. Be concise and informative. If the answer is not in the context, say 'I could not find an answer in the provided documents.'"
+        instructions = (
+            "You are a helpful and informative assistant. Answer the question thoroughly using ONLY the provided context. "
+            "Write a clear, multi-sentence response. "
+            "IMPORTANT: Reference source numbers like [1], [2] when citing specific details. "
+            "DO NOT simply output a number or a citation tag. You must provide a descriptive answer in plain English."
+        )
+        if is_meta:
+             instructions += " Since the user wants details or a summary, synthesize the most important information from the provided context."
+        else:
+             instructions += " If the answer is not in the context, say 'I could not find an answer in the provided documents.'"
+
     prompt = f'{instructions}\n\n{conv_history}CONTEXT:\n{context_text}\n\nQUESTION: {question}\n\nANSWER:'
     return prompt
 
@@ -118,14 +139,42 @@ def generate_answer(question: str, retrieved_chunks: List[RetrievalResult], mode
     if not retrieved_chunks:
         logger.info(f"No documents retrieved for question: '{question}'")
         return NOT_FOUND_RESPONSE
+    
     prompt = build_prompt(question, retrieved_chunks, conversation_context)
     try:
         pipe = get_llm_pipeline(model_name)
-        results = pipe(prompt, max_new_tokens=150, temperature=0.3, do_sample=True, top_p=0.9, repetition_penalty=1.1)
+        # Use a slightly higher temperature for variety and repetition penalty to avoid loops
+        results = pipe(prompt, max_new_tokens=256, temperature=0.3, do_sample=True, top_p=0.9, repetition_penalty=1.2)
         generated_text = results[0]['generated_text'].strip()
-        if not generated_text or "i don't know" in generated_text.lower():
+        
+        # Heuristic checks for poor quality answers
+        is_too_short = len(generated_text) < 10
+        is_just_source = generated_text.startswith('[') and generated_text.endswith(']') and generated_text[1:-1].isdigit()
+        is_unknown = "i don't know" in generated_text.lower() or "not in context" in generated_text.lower()
+        
+        if not generated_text or is_unknown or is_just_source:
+            if is_just_source:
+                logger.warning(f"LLM returned only a source indicator: '{generated_text}'")
+                # Attempt to extract some text from that source as a fallback
+                try:
+                    idx_str = generated_text[1:-1]
+                    idx = int(idx_str) - 1
+                    if 0 <= idx < len(retrieved_chunks):
+                        fallback_text = f"According to {retrieved_chunks[idx].document}: {retrieved_chunks[idx].snippet[:300]}..."
+                        return fallback_text
+                except:
+                    pass
+            
+            # If we retrieved chunks but LLM still says unknown, return a "Knowledge Snippet" from the first chunk
+            if retrieved_chunks and (is_unknown or not generated_text):
+                first = retrieved_chunks[0]
+                logger.info(f"LLM said unknown, providing fallback snippet from {first.document}")
+                fallback = f"I couldn't synthesize a full answer, but here is what I found in {first.document}:\n\n...{first.snippet[:400]}..."
+                return fallback
+
             logger.warning(f"LLM could not find answer for: '{question}'")
             return NOT_FOUND_RESPONSE
+            
         return generated_text
     except Exception as e:
         logger.error(f'Generation failed: {e}')
