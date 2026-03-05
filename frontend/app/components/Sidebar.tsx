@@ -34,21 +34,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const checkHealth = useCallback(async () => {
-        try {
-            const d = await fetchHealth();
-            setStatusOnline(true);
-            setStatusText("API Online");
-            setChunkCount(d.chunk_count || 0);
-            loadDocuments();
-        } catch {
-            setStatusOnline(false);
-            setStatusText("API Offline");
-            setChunkCount(0);
-        }
-    }, []);
-
-    const loadDocuments = async () => {
+    const loadDocuments = useCallback(async () => {
         try {
             const d = await fetchDocuments();
             if (d.documents && d.documents.length > 0) {
@@ -61,7 +47,21 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
         } catch {
             console.error("Failed to load documents");
         }
-    };
+    }, []);
+
+    const checkHealth = useCallback(async () => {
+        try {
+            const d = await fetchHealth();
+            setStatusOnline(true);
+            setStatusText("API Online");
+            setChunkCount(d.chunk_count || 0);
+            await loadDocuments();
+        } catch {
+            setStatusOnline(false);
+            setStatusText("API Offline");
+            setChunkCount(0);
+        }
+    }, [loadDocuments]);
 
     const showToast = (msg: string, type: "success" | "warn" | "error") => {
         setToastMsg({ msg, type });
@@ -110,11 +110,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
         setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
     };
 
-    const formatSize = (bytes: number) => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    };
+
 
     const handleUploadAndIndex = async () => {
         if (selectedFiles.length === 0) return;

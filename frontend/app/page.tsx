@@ -38,6 +38,13 @@ const Reveal = ({ children, className = "", delay = 0 }: { children: React.React
     );
 };
 
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    children: React.ReactNode;
+    variant?: 'primary' | 'ghost' | 'white';
+    as?: 'button' | 'link';
+    href?: string;
+}
+
 const Button = ({
     children,
     variant = 'primary',
@@ -45,9 +52,9 @@ const Button = ({
     as = 'button',
     href = '#',
     ...props
-}: any) => {
+}: ButtonProps) => {
     const baseStyles = "px-6 py-2 text-sm font-medium transition-all duration-300 border border-transparent inline-flex items-center justify-center";
-    const variants: any = {
+    const variants: Record<string, string> = {
         primary: "bg-white text-black hover:invert",
         ghost: "border-border bg-transparent text-white hover:bg-neutral-900 border-[#1f1f1f]",
         white: "bg-white text-black hover:invert",
@@ -175,10 +182,10 @@ export default function LandingPage() {
                                         <div className="text-emerald-500">
                                             <div className="mb-1"># Response (1.4s)</div>
                                             <div>{`{`}</div>
-                                            <div className="pl-4">"answer": "Either party may terminate with 30 days...",</div>
-                                            <div className="pl-4">"confidence": "high",</div>
-                                            <div className="pl-4">"sources": [{`{ "document": "contract_v2.pdf", "score": 0.94 }`}],</div>
-                                            <div className="pl-4">"follow_ups": ["What is the notice period?", ...]</div>
+                                            <div className="pl-4">&quot;answer&quot;: &quot;Either party may terminate with 30 days...&quot;,</div>
+                                            <div className="pl-4">&quot;confidence&quot;: &quot;high&quot;,</div>
+                                            <div className="pl-4">&quot;sources&quot;: [{`{ &quot;document&quot;: &quot;contract_v2.pdf&quot;, &quot;score&quot;: 0.94 }`}],</div>
+                                            <div className="pl-4">&quot;follow_ups&quot;: [&quot;What is the notice period?&quot;, ...]</div>
                                             <div>{`}`}</div>
                                         </div>
                                     </div>
