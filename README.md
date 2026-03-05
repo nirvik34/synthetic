@@ -1,4 +1,4 @@
-# Synthetic — Local RAG Document Q&A System
+# Deepdox — Local RAG Document Q&A System
 
 A production-ready **Retrieval-Augmented Generation (RAG)** system that answers questions from your documents using only local models — no API keys, no internet, no data leaks. Built with FastAPI, ChromaDB, Sentence-Transformers, and a Next.js chat frontend.
 
@@ -7,6 +7,7 @@ A production-ready **Retrieval-Augmented Generation (RAG)** system that answers 
 ## Table of Contents
 
 - [Features](#features)
+- [Gallery](#gallery)
 - [Tech Stack](#tech-stack)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
@@ -34,6 +35,26 @@ A production-ready **Retrieval-Augmented Generation (RAG)** system that answers 
 - **File upload API** — drop new documents in via `POST /upload-file` and re-ingest
 - **PDF support** — dict-mode PyMuPDF extraction preserves block/line structure
 - **Metadata-aware retrieval** — mention a filename in your query to scope search to that document
+
+---
+
+## Gallery
+
+### 1. Premium Landing Page
+![Deepdox Hero](img/hero.png)
+*High-end, dark-mode landing page featuring the new Deepdox branding and responsive features section.*
+
+### 2. Conversational Intelligence
+![Chat Interface](img/chatbot1.png)
+*Advanced chat interface with multi-turn memory and real-time status indicators.*
+
+### 3. Verifiable Citations & Hallucination Guard
+![Hallucination Guard](img/hallucinationAndNormalAnswer.png)
+*Proof of grounding: The system provides detailed citations [1] for valid answers and triggers the strict Hallucination Guard for out-of-bounds queries.*
+
+### 4. Benchmarked Accuracy
+![Evaluation Report](img/evaluateHTMLReport.png)
+*Scientific verification: 92.9% overall accuracy across CUAD Legal and Wikipedia datasets.*
 
 ---
 
@@ -257,7 +278,7 @@ Even after generation, a final multi-check runs before the answer is returned:
 
 If any check fires, the final response is:
 
-> **"I could not find this in the provided documents. Can you share the relevant document? I'd be happy to help then."**
+> **"I could not find this in the provided documents. Can you share the relevant document?"**
 
 ...and `confidence` is forced to `"low"`, `sources` is cleared to `[]`, and no follow-up questions are generated.
 
@@ -335,7 +356,7 @@ Pre-downloaded articles are already in `docs/` (see `wiki_20220301.en_*.txt`).
 ## Project Structure
 
 ```
-synthetic/
+deepdox/
 ├── app/
 │   ├── main.py          ← FastAPI app, all API endpoints, hallucination guard
 │   ├── ingestion.py     ← File loading, text cleaning, chunking (legal + standard)
