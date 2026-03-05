@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 interface HeaderProps {
     topK: number;
@@ -20,14 +21,14 @@ export default function Header({
     return (
         <header className="h-16 flex-shrink-0 border-b border-[#262626] flex items-center justify-between px-8 bg-transparent z-20">
             <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2 cursor-pointer no-underline">
                     <span className="material-symbols-rounded text-white text-xl">
                         neurology
                     </span>
                     <span className="text-[10px] font-bold text-white tracking-brutal uppercase">
                         Brain
                     </span>
-                </div>
+                </Link>
 
                 {/* Memory Toggle */}
                 <div className="flex items-center gap-3 border-l border-[#262626] pl-6">

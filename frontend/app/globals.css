@@ -6,8 +6,8 @@
   --color-border: #1f1f1f;
   --color-accent: #ffffff;
 
-  --font-sans: var(--font-inter);
-  --font-mono: "SFMono-Regular", "Menlo", "Monaco", "monospace";
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-outfit);
 
   --radius-none: 0px;
   --radius-sm: 4px;

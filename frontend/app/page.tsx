@@ -71,7 +71,7 @@ const Badge = ({ children, status = 'success' }: { children: React.ReactNode, st
         ? "border-emerald-900 text-emerald-500"
         : "border-neutral-700 text-neutral-500";
     return (
-        <span className={`border text-[10px] px-2 py-0.5 uppercase tracking-tight ${styles}`}>
+        <span className={`border text-xs px-2.5 py-1 uppercase tracking-tight ${styles}`}>
             {children}
         </span>
     );
@@ -93,16 +93,16 @@ export default function LandingPage() {
 
             {/* 1. NAVBAR */}
             <nav className="fixed top-0 w-full h-16 z-50 bg-background border-b border-border flex items-center px-6 md:px-12 justify-between">
-                <div className="flex items-center space-x-3">
+                <Link href="/" className="flex items-center space-x-3 cursor-pointer">
                     <div className="w-5 h-5 border-2 border-white rotate-45 flex-shrink-0"></div>
                     <span className="font-medium tracking-tight text-lg">DocuMind AI</span>
-                </div>
+                </Link>
 
                 <div className="hidden md:flex items-center space-x-8">
-                    <a href="#hero" className="text-sm text-neutral-400 hover:text-white transition-colors">Product</a>
-                    <a href="#demo" className="text-sm text-neutral-400 hover:text-white transition-colors">Chat</a>
-                    <a href="#how-it-works" className="text-sm text-neutral-400 hover:text-white transition-colors">Docs</a>
-                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-400 hover:text-white transition-colors">GitHub</a>
+                    <a href="#hero" className="text-base text-neutral-400 hover:text-white transition-colors">Product</a>
+                    <Link href="/chat" className="text-base text-neutral-400 hover:text-white transition-colors">Chat</Link>
+                    <a href="#how-it-works" className="text-base text-neutral-400 hover:text-white transition-colors">Docs</a>
+                    <a href="https://github.com/nirvik34/synthetic" target="_blank" rel="noopener noreferrer" className="text-base text-neutral-400 hover:text-white transition-colors">GitHub</a>
                 </div>
 
                 <Button variant="white" as="link" href="/chat" className="px-5">Get Started</Button>
@@ -133,15 +133,15 @@ export default function LandingPage() {
                         <Reveal>
                             <div className="flex items-center space-x-2 mb-8">
                                 <div className="w-2 h-2 bg-neutral-400"></div>
-                                <span className="text-[10px] uppercase tracking-widest text-neutral-500">Vision v2.0</span>
+                                <span className="text-xs uppercase tracking-widest text-neutral-500">Vision v2.0</span>
                             </div>
 
-                            <h1 className="text-6xl md:text-7xl font-light tracking-tighter leading-[1.1] mb-8">
+                            <h1 className="text-7xl md:text-8xl font-light tracking-tighter leading-[1.1] mb-8">
                                 Ask anything. Get answers from your documents. <br />
                                 <span className="text-neutral-500">Instantly.</span>
                             </h1>
 
-                            <p className="text-lg text-neutral-400 font-light leading-relaxed max-w-lg mb-12">
+                            <p className="text-xl text-neutral-400 font-light leading-relaxed max-w-xl mb-12">
                                 DocuMind indexes your PDFs, contracts, and research papers into a local vector store. No cloud. No hallucination. Precise answers with citations.
                             </p>
 
@@ -150,7 +150,7 @@ export default function LandingPage() {
                                 <Button variant="ghost" className="px-10 py-4 h-auto">View on GitHub →</Button>
                             </div>
 
-                            <p className="text-neutral-500 text-sm font-mono tracking-wide">
+                            <p className="text-neutral-500 text-base tracking-wide">
                                 100% local · No API key needed · Open source
                             </p>
                         </Reveal>
@@ -162,7 +162,7 @@ export default function LandingPage() {
                                         <div className="w-3 h-3 bg-neutral-800 rounded-full"></div>
                                         <div className="w-3 h-3 bg-neutral-800 rounded-full"></div>
                                         <div className="w-3 h-3 bg-neutral-800 rounded-full"></div>
-                                        <span className="ml-2 text-neutral-600 text-xs">terminal — query_engine.py</span>
+                                        <span className="ml-2 text-neutral-600 text-sm">terminal — query_engine.py</span>
                                     </div>
 
                                     <div className="space-y-6">
@@ -191,7 +191,7 @@ export default function LandingPage() {
                 {/* LOGO BAR */}
                 <section className="py-12 border-b border-border">
                     <div className="container mx-auto px-6 md:px-12 flex flex-wrap items-center justify-between gap-8 opacity-50 grayscale">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">Trusted by teams using</span>
+                        <span className="text-xs uppercase tracking-[0.2em] text-neutral-500">Trusted by teams using</span>
                         <div className="flex flex-wrap gap-8 md:gap-12 items-center text-xl font-bold font-sans tracking-tighter">
                             <span>ChromaDB</span>
                             <span>HuggingFace</span>
@@ -206,8 +206,8 @@ export default function LandingPage() {
                 <section id="how-it-works" className="py-24 border-b border-border">
                     <div className="container mx-auto px-6 md:px-12">
                         <Reveal className="mb-16">
-                            <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-4">PROCESS</div>
-                            <h2 className="text-4xl font-light tracking-tight">From document to answer in seconds</h2>
+                            <div className="text-xs uppercase tracking-widest text-neutral-500 mb-4">PROCESS</div>
+                            <h2 className="text-5xl font-light tracking-tight">From document to answer in seconds</h2>
                         </Reveal>
 
                         <div className="grid md:grid-cols-3">
@@ -256,8 +256,8 @@ export default function LandingPage() {
                             ].map((feature, i) => (
                                 <Reveal key={i} delay={i * 50} className="p-10 border-r border-b border-[#1f1f1f] hover:bg-neutral-900/20 transition-colors group">
                                     <span className="material-symbols-outlined text-neutral-400 text-4xl mb-6 group-hover:text-white transition-colors">{feature.icon}</span>
-                                    <h4 className="text-xl mb-4">{feature.title}</h4>
-                                    <p className="text-neutral-400 font-light leading-relaxed text-sm">{feature.body}</p>
+                                    <h4 className="text-2xl mb-4">{feature.title}</h4>
+                                    <p className="text-neutral-400 font-light leading-relaxed text-base">{feature.body}</p>
                                 </Reveal>
                             ))}
                         </div>
@@ -320,9 +320,9 @@ export default function LandingPage() {
                         </div>
 
                         {/* Right Sidebar Stats */}
-                        <aside className="w-full md:w-72 border-l border-[#1f1f1f] bg-neutral-900/20 p-8 space-y-12">
+                        <aside className="w-full md:w-80 border-l border-[#1f1f1f] bg-neutral-900/20 p-8 space-y-12">
                             <div>
-                                <h4 className="text-[10px] uppercase tracking-widest text-neutral-500 mb-8 font-medium">Indexed Stats</h4>
+                                <h4 className="text-xs uppercase tracking-widest text-neutral-500 mb-8 font-medium">Indexed Stats</h4>
                                 <div className="space-y-8">
                                     {[
                                         { val: '1,071', label: 'Chunks Indexed' },
@@ -330,15 +330,15 @@ export default function LandingPage() {
                                         { val: '0', label: 'Hallucinations' },
                                     ].map((stat, i) => (
                                         <div key={i}>
-                                            <div className="text-3xl font-light text-white mb-1">{stat.val}</div>
-                                            <div className="text-[10px] uppercase tracking-tighter text-neutral-500">{stat.label}</div>
+                                            <div className="text-4xl font-light text-white mb-1">{stat.val}</div>
+                                            <div className="text-xs uppercase tracking-tighter text-neutral-500">{stat.label}</div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <h4 className="text-[10px] uppercase tracking-widest text-neutral-500 mb-8 font-medium">Connected Sources</h4>
+                                <h4 className="text-xs uppercase tracking-widest text-neutral-500 mb-8 font-medium">Connected Sources</h4>
                                 <div className="space-y-4">
                                     {['cuad_contract_1.txt', 'wiki_algorithm.txt', 'company_policies.txt'].map((source, i) => (
                                         <div key={i} className="flex items-center gap-3 text-xs text-neutral-400 font-mono">
@@ -364,10 +364,10 @@ export default function LandingPage() {
                                 <table className="w-full font-mono text-sm text-left">
                                     <thead className="bg-neutral-900/50 border-b border-[#1f1f1f]">
                                         <tr>
-                                            <th className="p-6 font-medium text-neutral-500 uppercase text-[10px] tracking-widest">Test Case</th>
-                                            <th className="p-6 font-medium text-neutral-500 uppercase text-[10px] tracking-widest">Expected Source</th>
-                                            <th className="p-6 font-medium text-neutral-500 uppercase text-[10px] tracking-widest">Result</th>
-                                            <th className="p-6 font-medium text-neutral-500 uppercase text-[10px] tracking-widest">Confidence</th>
+                                            <th className="p-6 font-medium text-neutral-500 uppercase text-xs tracking-widest">Test Case</th>
+                                            <th className="p-6 font-medium text-neutral-500 uppercase text-xs tracking-widest">Expected Source</th>
+                                            <th className="p-6 font-medium text-neutral-500 uppercase text-xs tracking-widest">Result</th>
+                                            <th className="p-6 font-medium text-neutral-500 uppercase text-xs tracking-widest">Confidence</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-neutral-900">
@@ -450,6 +450,7 @@ export default function LandingPage() {
                         <div>
                             <h5 className="text-[10px] uppercase tracking-widest text-neutral-400 mb-8">Product</h5>
                             <ul className="space-y-4 text-sm font-light text-neutral-500">
+                                <li><Link href="/chat" className="hover:text-white transition-colors">Chat</Link></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Evaluation</a></li>
