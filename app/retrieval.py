@@ -38,11 +38,15 @@ def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similari
         reranker = get_rerank_model()
         pairs = [[query, c.snippet] for c in candidates]
         logits = reranker.predict(pairs)
-        normalized_scores = 1.0 / (1.0 + np.exp(-logits))
-        if np.isscalar(normalized_scores):
-            normalized_scores = [normalized_scores]
+        cross_scores = 1.0 / (1.0 + np.exp(-logits))
+        if np.isscalar(cross_scores):
+            cross_scores = [cross_scores]
+        
         for i, c in enumerate(candidates):
-            c.score = float(normalized_scores[i])
+            # Hybrid scoring: 30% Bi-Encoder, 70% Cross-Encoder
+            # This prevents 0.0001 cross-scores from killing 0.8 bi-sim matches
+            c.score = float(0.3 * c.score + 0.7 * cross_scores[i])
+            
         candidates.sort(key=lambda x: x.score, reverse=True)
         retrieved = candidates[:top_k]
     except Exception as e:
@@ -55,10 +59,11 @@ def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similari
 def compute_confidence(results: List[RetrievalResult]) -> str:
     if not results:
         return 'low'
+    # Use a lower threshold for legal/complex text
     max_score = max((r.score for r in results))
-    if max_score >= 0.50:
+    if max_score >= 0.25:  # Lowered from 0.50
         return 'high'
-    elif max_score >= 0.30:
+    elif max_score >= 0.10:  # Lowered from 0.30
         return 'medium'
     return 'low'
 

@@ -26,9 +26,9 @@ def build_prompt(question: str, retrieved_chunks: List[RetrievalResult]) -> str:
     context_text = '\n\n'.join(context_parts)
     is_legal = any((kw in res.document.lower() for res in retrieved_chunks for kw in ['cuad', 'contract', 'agreement', 'legal']))
     if is_legal:
-        instructions = "You are a legal assistant. Answer the question using ONLY the provided legal context. If you find clauses that contradict each other or contain nullifying conditions, explicitly note this in your answer. Never infer legal obligations not stated in the text. If the answer is not in the context, say 'I don't know'."
+        instructions = "You are a legal assistant. Answer the question comprehensively using the provided legal context. Look for specific conditions, notice periods, and clause numbers. If the question is about 'conditions', list all relevant triggers (e.g., convenience, breach, insolvency). If the answer is definitely not in the context, say 'I could not find an answer in the provided documents.'"
     else:
-        instructions = "You are a helpful assistant. Answer the question using ONLY the provided context. If the answer is not in the context, say 'I don't know'."
+        instructions = "You are a helpful assistant. Answer the question using ONLY the provided context. Be concise and informative. If the answer is not in the context, say 'I could not find an answer in the provided documents.'"
     prompt = f'{instructions}\n\nCONTEXT:\n{context_text}\n\nQUESTION: {question}\n\nANSWER:'
     return prompt
 

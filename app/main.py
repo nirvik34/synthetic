@@ -15,7 +15,7 @@ from app.generation import generate_answer, get_llm_pipeline, NOT_FOUND_RESPONSE
 load_dotenv()
 LLM_MODEL_NAME = os.getenv('LLM_MODEL_NAME', 'google/flan-t5-base')
 EMBEDDING_MODEL_NAME = os.getenv('EMBEDDING_MODEL_NAME', 'all-MiniLM-L6-v2')
-TOP_K = int(os.getenv('TOP_K', '5'))
+TOP_K = int(os.getenv('TOP_K', '10'))
 SIMILARITY_THRESHOLD = float(os.getenv('SIMILARITY_THRESHOLD', '0.15'))
 DOCS_DIR = os.getenv('DOCS_DIR', 'docs')
 CHROMA_DB_DIR = os.getenv('CHROMA_DB_DIR', 'chroma_db')

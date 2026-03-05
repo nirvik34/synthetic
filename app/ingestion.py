@@ -64,23 +64,56 @@ def chunk_text(text: str, doc_name: str, chunk_size: int=500, overlap: int=50) -
     logger.debug(f"Chunked (Standard) '{doc_name}' → {len(chunks)} chunks")
     return chunks
 
-def chunk_legal_text(text: str, doc_name: str) -> List[Chunk]:
-    raw_pattern = '^(?:ARTICLE\\s+[IVXLCDM]+|SECTION\\s+\\d+(?:\\.\\d+)?|[\\d]+\\.\\s+[A-Z\\s]+|WHEREAS|NOW\\s+THEREFORE)'
-    pattern = re.compile(f'({raw_pattern})', re.MULTILINE)
+def chunk_legal_text(text: str, doc_name: str, chunk_size: int=1000, overlap: int=100) -> List[Chunk]:
+    # Try a more flexible pattern first (match numbered sections like 3. Termination or 4.1.2)
+    raw_pattern = r'(\n\s*(?:ARTICLE|SECTION|ITEM)\s+[IVXLCDM\d.]+|\n\s*\d+\.\d*(?:\.\d+)*\s+[A-Z][a-z]+|(?:\n|^)\s*(?:WHEREAS|NOW\s+THEREFORE|IN\s+WITNESS\s+WHEREOF))'
+    pattern = re.compile(raw_pattern, re.IGNORECASE)
+    
+    # Split the text
     parts = pattern.split(text)
+    
     chunks: List[Chunk] = []
+    if len(parts) <= 1:
+        # Fallback to standard chunking if regex fails
+        logger.debug(f"Legal regex splitting failed for '{doc_name}', falling back to standard chunking.")
+        return chunk_text(text, doc_name, chunk_size, overlap)
+
     offset = 0
+    # First part is usually the preamble
     if parts[0].strip():
-        chunks.append({'chunk_id': f'{doc_name}__preamble', 'doc_name': doc_name, 'text': parts[0].strip(), 'char_start': 0, 'char_end': len(parts[0])})
+        chunks.append({
+            'chunk_id': f'{doc_name}__preamble',
+            'doc_name': doc_name,
+            'text': parts[0].strip()[:2000], # Cap size
+            'char_start': 0,
+            'char_end': len(parts[0])
+        })
     offset = len(parts[0])
+
     for i in range(1, len(parts), 2):
         marker = parts[i]
         content = parts[i + 1] if i + 1 < len(parts) else ''
         section_text = (marker + content).strip()
-        if section_text:
-            chunks.append({'chunk_id': f'{doc_name}__section_{i // 2 + 1}', 'doc_name': doc_name, 'text': section_text, 'char_start': offset, 'char_end': offset + len(marker) + len(content)})
+        
+        # If a section is too giant, further chunk it standardly
+        if len(section_text) > chunk_size * 2:
+            sub_chunks = chunk_text(section_text, doc_name, chunk_size, overlap)
+            for j, sc in enumerate(sub_chunks):
+                sc['chunk_id'] = f"{doc_name}__section_{i//2 + 1}_sub_{j}"
+                sc['char_start'] += offset
+                sc['char_end'] += offset
+                chunks.append(sc)
+        elif section_text:
+            chunks.append({
+                'chunk_id': f'{doc_name}__section_{i//2 + 1}',
+                'doc_name': doc_name,
+                'text': section_text,
+                'char_start': offset,
+                'char_end': offset + len(marker) + len(content)
+            })
         offset += len(marker) + len(content)
-    logger.debug(f"Chunked (Legal) '{doc_name}' → {len(chunks)} sections")
+    
+    logger.debug(f"Chunked (Legal) '{doc_name}' → {len(chunks)} sections/chunks")
     return chunks
 SUPPORTED_EXTENSIONS = {'.txt', '.md', '.pdf'}
 
