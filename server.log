@@ -1,0 +1,98 @@
+nohup: ignoring input
+/home/nirvik/Desktop/projects/hackathons/synthetix/rag-qa-bot/venv/lib/python3.12/site-packages/pydantic/_internal/_fields.py:160: UserWarning: Field "model_loaded" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [69149]
+INFO:     Waiting for application startup.
+13:21:52 | INFO | === RAG Q&A Bot starting up ===
+13:21:52 | INFO | Loading embedding model: all-MiniLM-L6-v2
+/home/nirvik/Desktop/projects/hackathons/synthetix/rag-qa-bot/venv/lib/python3.12/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+13:21:55 | SUCCESS | Embedding model loaded.
+13:21:55 | INFO | Loading local LLM: google/flan-t5-base (this may take a minute on first run)...
+13:21:56 | SUCCESS | LLM pipeline ready.
+Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+13:21:56 | INFO | ChromaDB initialized at: chroma_db
+13:21:56 | WARNING | No vector store found. POST /ingest to index documents first.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51650 - "GET /health HTTP/1.1" 200 OK
+13:22:13 | INFO | Starting ingestion from: docs
+13:22:13 | INFO | Found 12 document(s) to ingest
+13:22:13 | INFO | Processing: wiki_20220301.en_Algorithm.txt
+13:22:13 | INFO | Processing: cuad_contract_3.txt
+13:22:13 | INFO | Processing: cuad_contract_4.txt
+13:22:13 | INFO | Processing: wiki_20220301.en_List_of_computer_scientists.txt
+13:22:13 | INFO | Processing: wiki_20220301.en_Integer_factorization.txt
+13:22:13 | INFO | Processing: cuad_contract_0.txt
+13:22:13 | INFO | Processing: faq.md
+13:22:13 | INFO | Processing: cuad_contract_2.txt
+13:22:13 | INFO | Processing: company_policies.txt
+13:22:13 | INFO | Processing: data_privacy.txt
+13:22:13 | INFO | Processing: wiki_20220301.en_Artificial_intelligence.txt
+13:22:13 | INFO | Processing: cuad_contract_1.txt
+13:22:13 | SUCCESS | Ingestion complete: 492 total chunks from 12 file(s)
+Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+13:22:13 | INFO | Embedding 492 chunks in batches of 64...
+Embedding:   0%|          | 0/8 [00:00<?, ?it/s]Failed to send telemetry event CollectionAddEvent: capture() takes 1 positional argument but 3 were given
+Embedding:  12%|█▎        | 1/8 [00:01<00:07,  1.13s/it]Embedding:  25%|██▌       | 2/8 [00:02<00:07,  1.19s/it]Embedding:  38%|███▊      | 3/8 [00:04<00:07,  1.48s/it]Embedding:  50%|█████     | 4/8 [00:05<00:05,  1.34s/it]Embedding:  62%|██████▎   | 5/8 [00:06<00:03,  1.17s/it]Embedding:  75%|███████▌  | 6/8 [00:07<00:02,  1.35s/it]Embedding:  88%|████████▊ | 7/8 [00:08<00:01,  1.20s/it]Embedding: 100%|██████████| 8/8 [00:10<00:00,  1.31s/it]Embedding: 100%|██████████| 8/8 [00:10<00:00,  1.29s/it]
+13:22:23 | SUCCESS | Vector store built: 492 chunks indexed.
+13:22:23 | SUCCESS | Ingestion complete: 12 docs, 492 chunks
+INFO:     127.0.0.1:50304 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52196 - "GET /health HTTP/1.1" 200 OK
+13:23:34 | INFO | Question received: 'What are the termination conditions in the contract?'
+Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+13:23:34 | INFO | Loading re-ranker model: cross-encoder/ms-marco-MiniLM-L-6-v2
+13:23:35 | SUCCESS | Re-ranker model loaded.
+13:23:36 | WARNING | LLM could not find answer for: 'What are the termination conditions in the contract?'
+13:23:36 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:52200 - "POST /ask HTTP/1.1" 200 OK
+13:23:36 | INFO | Question received: 'What is the governing law or jurisdiction of this agreement?'
+13:23:36 | WARNING | LLM could not find answer for: 'What is the governing law or jurisdiction of this agreement?'
+13:23:36 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:52214 - "POST /ask HTTP/1.1" 200 OK
+13:23:36 | INFO | Question received: 'What are the confidentiality obligations of the parties?'
+13:23:37 | WARNING | LLM could not find answer for: 'What are the confidentiality obligations of the parties?'
+13:23:37 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:52230 - "POST /ask HTTP/1.1" 200 OK
+13:23:37 | INFO | Question received: 'What is the limitation of liability clause?'
+13:23:38 | WARNING | LLM could not find answer for: 'What is the limitation of liability clause?'
+13:23:38 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:52234 - "POST /ask HTTP/1.1" 200 OK
+13:23:38 | INFO | Question received: 'What are the payment terms or fees in the agreement?'
+13:23:39 | WARNING | LLM could not find answer for: 'What are the payment terms or fees in the agreement?'
+13:23:39 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50070 - "POST /ask HTTP/1.1" 200 OK
+13:23:39 | INFO | Question received: 'What is artificial intelligence?'
+13:23:40 | INFO | Answer generated | confidence=high | sources=5
+INFO:     127.0.0.1:50076 - "POST /ask HTTP/1.1" 200 OK
+13:23:40 | INFO | Question received: 'What is an algorithm?'
+13:23:41 | INFO | Answer generated | confidence=high | sources=5
+INFO:     127.0.0.1:50092 - "POST /ask HTTP/1.1" 200 OK
+13:23:41 | INFO | Question received: 'What is integer factorization?'
+Token indices sequence length is longer than the specified maximum sequence length for this model (582 > 512). Running this sequence through the model will result in indexing errors
+13:23:43 | INFO | Answer generated | confidence=high | sources=5
+INFO:     127.0.0.1:50100 - "POST /ask HTTP/1.1" 200 OK
+13:23:43 | INFO | Question received: 'What is a transformer model in machine learning?'
+13:23:44 | WARNING | LLM could not find answer for: 'What is a transformer model in machine learning?'
+13:23:44 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50114 - "POST /ask HTTP/1.1" 200 OK
+13:23:44 | INFO | Question received: 'What is the refund policy?'
+13:23:46 | INFO | Answer generated | confidence=high | sources=2
+INFO:     127.0.0.1:50116 - "POST /ask HTTP/1.1" 200 OK
+13:23:46 | INFO | Question received: 'How is user data encrypted and protected?'
+13:23:47 | INFO | Answer generated | confidence=high | sources=3
+INFO:     127.0.0.1:50132 - "POST /ask HTTP/1.1" 200 OK
+13:23:47 | INFO | Question received: 'What is the population of Mars according to the 2024 census?'
+13:23:47 | INFO | No documents retrieved for question: 'What is the population of Mars according to the 2024 census?'
+13:23:47 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50140 - "POST /ask HTTP/1.1" 200 OK
+13:23:47 | INFO | Question received: 'What is the CEO salary mentioned in the documents?'
+13:23:47 | INFO | No documents retrieved for question: 'What is the CEO salary mentioned in the documents?'
+13:23:47 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50146 - "POST /ask HTTP/1.1" 200 OK
+13:23:47 | INFO | Question received: 'What are the nuclear launch codes in section 7?'
+13:23:48 | WARNING | LLM could not find answer for: 'What are the nuclear launch codes in section 7?'
+13:23:48 | INFO | Answer generated | confidence=low | sources=0
+INFO:     127.0.0.1:50148 - "POST /ask HTTP/1.1" 200 OK
