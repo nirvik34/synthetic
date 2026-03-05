@@ -188,7 +188,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
                         </div>
                         <div>
                             <h1 className="font-display font-bold text-sm leading-none tracking-tight uppercase">
-                                DocuMind AI
+                                Deepdox
                             </h1>
                             <div className="flex items-center gap-1.5 mt-2">
                                 <div

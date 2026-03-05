@@ -9,7 +9,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "DocuMind AI — RAG Document Intelligence",
+  title: "Deepdox — RAG Document Intelligence",
   description: "Ask anything. Get answers from your documents. Instantly. 100% local, open-source RAG intelligence.",
 };
 

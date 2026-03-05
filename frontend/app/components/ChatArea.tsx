@@ -291,7 +291,7 @@ export default function ChatArea({ messages, onFollowUp, onCitationClick }: Chat
                             <div className="flex-1 max-w-4xl">
                                 <div className="flex items-center gap-4 mb-3 ml-1">
                                     <span className="text-[12px] font-bold text-white uppercase tracking-brutal">
-                                        DocuMind AI
+                                        Deepdox
                                     </span>
                                     <span
                                         className={`px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase badge-${msg.data.confidence}`}

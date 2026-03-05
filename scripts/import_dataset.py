@@ -62,8 +62,8 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=str, default='docs', help='Output directory')
     args = parser.parse_args()
     if args.source == 'wiki_2020':
-        import_wikipedia('20220301.en', args.topic, args.limit, args.output)
+        import_wikipedia('20200301.en', args.topic, args.limit, args.output)
     elif args.source == 'wiki_2023':
-        import_wikipedia('20220301.en', args.topic, args.limit, args.output)
+        import_wikipedia('20231101.en', args.topic, args.limit, args.output)
     elif args.source == 'cuad':
         import_cuad(args.limit, args.output)

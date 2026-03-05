@@ -101,8 +101,7 @@ export default function LandingPage() {
             {/* 1. NAVBAR */}
             <nav className="fixed top-0 w-full h-16 z-50 bg-background border-b border-border flex items-center px-6 md:px-12 justify-between">
                 <Link href="/" className="flex items-center space-x-3 cursor-pointer">
-                    <div className="w-5 h-5 border-2 border-white rotate-45 flex-shrink-0"></div>
-                    <span className="font-medium tracking-tight text-lg">DocuMind AI</span>
+                    <span className="font-medium tracking-tight text-lg">Deepdox</span>
                 </Link>
 
                 <div className="hidden md:flex items-center space-x-8">
@@ -149,7 +148,7 @@ export default function LandingPage() {
                             </h1>
 
                             <p className="text-xl text-neutral-400 font-light leading-relaxed max-w-xl mb-12">
-                                DocuMind indexes your PDFs, contracts, and research papers into a local vector store. No cloud. No hallucination. Precise answers with citations.
+                                Deepdox indexes your PDFs, contracts, and research papers into a local vector store. No cloud. No hallucination. Precise answers with citations.
                             </p>
 
                             <div className="flex flex-wrap gap-4 mb-10">
@@ -246,8 +245,18 @@ export default function LandingPage() {
                 </section>
 
                 {/* FEATURES GRID */}
-                <section className="py-24 border-b border-border">
-                    <div className="container mx-auto px-6 md:px-12">
+                <section className="relative py-24 border-b border-border overflow-hidden">
+                    {/* Background Image Layer */}
+                    <div
+                        className="absolute inset-0 z-0 opacity-10 grayscale"
+                        style={{
+                            backgroundImage: 'url("/img4.jpeg")',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            transform: 'rotate(90deg) scale(2.5)', // Rotates portrait image into horizontal landscape
+                        }}
+                    />
+                    <div className="container mx-auto px-6 md:px-12 relative z-10">
                         <Reveal className="mb-16">
                             <h2 className="text-4xl font-light tracking-tight">Engineered for Accuracy.</h2>
                         </Reveal>
@@ -446,8 +455,7 @@ export default function LandingPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-24">
                         <div className="col-span-2">
                             <div className="flex items-center space-x-3 mb-8">
-                                <div className="w-5 h-5 border-2 border-white rotate-45"></div>
-                                <span className="font-medium tracking-tight text-xl">DocuMind AI</span>
+                                <span className="font-medium tracking-tight text-xl">Deepdox</span>
                             </div>
                             <p className="text-neutral-500 text-sm font-light leading-relaxed max-w-xs">
                                 Precision document intelligence. Open source. Local first. Next-generation RAG system for modern engineering teams.
@@ -485,7 +493,7 @@ export default function LandingPage() {
 
                     <div className="pt-10 border-t border-neutral-900 flex flex-col md:flex-row justify-between gap-6">
                         <div className="text-neutral-600 text-[10px] uppercase tracking-widest font-mono">
-                            © 2025 DocuMind AI · MIT License · Built for Synthetix Hackathon
+                            © 2025 Deepdox · MIT License · Built for Synthetix Hackathon
                         </div>
 
                         <div className="flex items-center gap-8 text-neutral-500 font-mono text-xs">

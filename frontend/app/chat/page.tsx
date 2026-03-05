@@ -38,16 +38,16 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true);
     try {
-      const savedMessages = localStorage.getItem("documind_messages");
+      const savedMessages = localStorage.getItem("deepdox_messages");
       if (savedMessages) setMessages(JSON.parse(savedMessages));
 
-      const savedHistoryLog = localStorage.getItem("documind_historyLog");
+      const savedHistoryLog = localStorage.getItem("deepdox_historyLog");
       if (savedHistoryLog) setHistoryLog(JSON.parse(savedHistoryLog));
 
-      const savedSidebarHistory = localStorage.getItem("documind_sidebarHistory");
+      const savedSidebarHistory = localStorage.getItem("deepdox_sidebarHistory");
       if (savedSidebarHistory) setSidebarHistory(JSON.parse(savedSidebarHistory));
 
-      const savedConversationMemory = localStorage.getItem("documind_conversationMemory");
+      const savedConversationMemory = localStorage.getItem("deepdox_conversationMemory");
       if (savedConversationMemory) setConversationMemory(JSON.parse(savedConversationMemory));
     } catch (e) {
       console.error("Failed to load state from localStorage:", e);
@@ -58,10 +58,10 @@ export default function Home() {
   useEffect(() => {
     if (!isMounted) return;
     try {
-      localStorage.setItem("documind_messages", JSON.stringify(messages));
-      localStorage.setItem("documind_historyLog", JSON.stringify(historyLog));
-      localStorage.setItem("documind_sidebarHistory", JSON.stringify(sidebarHistory));
-      localStorage.setItem("documind_conversationMemory", JSON.stringify(conversationMemory));
+      localStorage.setItem("deepdox_messages", JSON.stringify(messages));
+      localStorage.setItem("deepdox_historyLog", JSON.stringify(historyLog));
+      localStorage.setItem("deepdox_sidebarHistory", JSON.stringify(sidebarHistory));
+      localStorage.setItem("deepdox_conversationMemory", JSON.stringify(conversationMemory));
     } catch (e) {
       console.error("Failed to save state to localStorage:", e);
     }
@@ -181,10 +181,10 @@ export default function Home() {
     setSelectedDocContent(null);
     setSelectedDocName(null);
     try {
-      localStorage.removeItem("documind_messages");
-      localStorage.removeItem("documind_historyLog");
-      localStorage.removeItem("documind_sidebarHistory");
-      localStorage.removeItem("documind_conversationMemory");
+      localStorage.removeItem("deepdox_messages");
+      localStorage.removeItem("deepdox_historyLog");
+      localStorage.removeItem("deepdox_sidebarHistory");
+      localStorage.removeItem("deepdox_conversationMemory");
     } catch (e) {
       console.error("Failed to clear localStorage:", e);
     }
@@ -224,12 +224,12 @@ export default function Home() {
       )
       .join("\n\n" + "─".repeat(60) + "\n\n");
     const blob = new Blob(
-      [`DocuMind AI — Chat Export\n${"═".repeat(60)}\n\n${txt}`],
+      [`Deepdox — Chat Export\n${"═".repeat(60)}\n\n${txt}`],
       { type: "text/plain" }
     );
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `documind-${Date.now()}.txt`;
+    a.download = `deepdox-${Date.now()}.txt`;
     a.click();
   };
 

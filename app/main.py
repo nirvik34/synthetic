@@ -64,7 +64,7 @@ async def get_ui():
     ui_path = os.path.join(os.getcwd(), 'ui.html')
     if os.path.exists(ui_path):
         return FileResponse(ui_path)
-    return HTMLResponse(content='<h1>DocuMind AI</h1><p>ui.html not found in root directory.</p>', status_code=404)
+    return HTMLResponse(content='<h1>Deepdox</h1><p>ui.html not found in root directory.</p>', status_code=404)
 
 
 @app.exception_handler(Exception)

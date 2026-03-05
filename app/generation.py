@@ -3,7 +3,7 @@ from typing import List, Optional
 from transformers import pipeline, Pipeline
 from loguru import logger
 from app.retrieval import RetrievalResult
-NOT_FOUND_RESPONSE = "I could not find this in the provided documents. Can you share the relevant document? I'd be happy to help then."
+NOT_FOUND_RESPONSE = "I could not find this in the provided documents. Can you share the relevant document?"
 MAX_CONTEXT_CHARS = 2000
 _llm_pipeline: Optional[Pipeline] = None
 

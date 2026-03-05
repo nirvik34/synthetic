@@ -32,7 +32,7 @@ export default function MiniSidebar({ onRefresh, onExport }: MiniSidebarProps) {
 
             <div
                 className="mt-auto w-10 h-10 border border-white rounded-xl flex items-center justify-center cursor-default"
-                title="DocuMind AI"
+                title="Deepdox"
             >
                 <span className="text-[10px] font-bold text-white tracking-widest uppercase">
                     AI
