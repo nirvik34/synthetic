@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/nirvik/Desktop/projects/hackathons/synthetix/rag-qa-bot/app/main.py", line 9, in <module>
+    from loguru import logger
+ModuleNotFoundError: No module named 'loguru'

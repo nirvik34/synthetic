@@ -18,76 +18,79 @@ export default function Header({
     memoryCount,
 }: HeaderProps) {
     return (
-        <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 z-10 shrink-0 glass">
-            <div className="flex items-center gap-4">
-                <span className="material-symbols-rounded text-slate-600">
-                    chevron_right
-                </span>
-                <span className="text-sm font-medium text-slate-300">
-                    Intelligent RAG Assistant
-                </span>
-                <div className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/25">
-                    CPU-Optimized · FLAN-T5
-                </div>
-            </div>
-            <div className="flex items-center gap-4">
-                {/* Memory Toggle */}
-                <button
-                    onClick={onMemoryToggle}
-                    className="flex items-center gap-2 group cursor-pointer"
-                    title={
-                        memoryEnabled
-                            ? `Memory ON (${memoryCount} turns)`
-                            : "Memory OFF"
-                    }
-                >
-                    <span className="material-symbols-rounded text-lg text-slate-500 group-hover:text-primary transition-colors">
-                        psychology
+        <header className="h-16 flex-shrink-0 border-b border-[#262626] flex items-center justify-between px-8 bg-transparent z-20">
+            <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                    <span className="material-symbols-rounded text-white text-xl">
+                        neurology
                     </span>
-                    <div
-                        className={`w-9 h-5 rounded-full relative transition-all duration-200 ${memoryEnabled
-                                ? "bg-primary/30 border-primary/50"
-                                : "bg-white/10 border-white/10"
-                            } border`}
+                    <span className="text-[10px] font-bold text-white tracking-brutal uppercase">
+                        Brain
+                    </span>
+                </div>
+
+                {/* Memory Toggle */}
+                <div className="flex items-center gap-3 border-l border-[#262626] pl-6">
+                    <button
+                        onClick={onMemoryToggle}
+                        className={`flex items-center gap-2 px-3 py-1.5 transition-all cursor-pointer border rounded-full ${memoryEnabled
+                            ? "bg-white text-black border-white"
+                            : "bg-transparent text-[#525252] border-[#262626]"
+                            }`}
                     >
-                        <div
-                            className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all duration-200 shadow-sm ${memoryEnabled
-                                    ? "left-[18px] bg-primary"
-                                    : "left-0.5 bg-slate-500"
-                                }`}
-                        />
-                    </div>
+                        <span className="material-symbols-rounded text-sm">
+                            {memoryEnabled ? "psychology" : "psychology_alt"}
+                        </span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest">
+                            Memory {memoryEnabled ? "ON" : "OFF"}
+                        </span>
+                    </button>
                     {memoryEnabled && memoryCount > 0 && (
-                        <span className="text-[9px] font-mono text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded-md">
-                            {memoryCount}
+                        <span className="text-[9px] font-mono text-[#525252] uppercase tracking-widest">
+                            [{memoryCount} TURNS]
                         </span>
                     )}
-                </button>
+                </div>
+            </div>
 
-                <div className="w-px h-6 bg-white/5" />
-
-                {/* Top K */}
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-slate-500 font-mono">top_k</span>
-                    <select
-                        value={topK}
-                        onChange={(e) => onTopKChange(parseInt(e.target.value))}
-                        className="bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 px-2 py-1 outline-none focus:border-primary/40 cursor-pointer"
-                    >
-                        <option value={3}>3</option>
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                    </select>
+            <div className="flex items-center gap-4">
+                {/* Model Specs */}
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-[#262626] bg-white/5 rounded-full">
+                    <span className="text-[9px] font-bold text-white uppercase tracking-widest">
+                        CPU-OPTIMIZED · FLAN-T5
+                    </span>
                 </div>
 
-                <div className="w-px h-6 bg-white/5" />
+                <div className="h-8 w-[1px] bg-[#262626]" />
 
-                {/* Clear */}
+                {/* Top-K Selector */}
+                <div className="flex items-center gap-3">
+                    <span className="text-[9px] font-bold text-[#525252] uppercase tracking-widest">
+                        Context:
+                    </span>
+                    <div className="flex border border-[#262626] rounded-full overflow-hidden">
+                        {[3, 5, 10].map((k) => (
+                            <button
+                                key={k}
+                                onClick={() => onTopKChange(k)}
+                                className={`px-3 py-1 text-[10px] font-bold transition-all cursor-pointer ${topK === k
+                                    ? "bg-white text-black"
+                                    : "text-[#525252] hover:bg-white/5"
+                                    }`}
+                            >
+                                {k}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Clear Button */}
                 <button
                     onClick={onClear}
-                    className="p-2 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-red-400/10 cursor-pointer"
+                    className="ml-4 p-2 text-[#525252] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#262626] rounded-full"
+                    title="Clear Conversation"
                 >
-                    <span className="material-symbols-rounded">delete_sweep</span>
+                    <span className="material-symbols-rounded text-xl">delete_sweep</span>
                 </button>
             </div>
         </header>

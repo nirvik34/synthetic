@@ -1,0 +1,29 @@
+# ── Core API ──────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+
+# ── Document Parsing ──────────────────────────────────────
+PyMuPDF==1.24.3          # PDF parsing (fitz)
+markdown==3.6            # .md parsing
+
+# ── Embeddings ────────────────────────────────────────────
+sentence-transformers==2.7.0   # all-MiniLM-L6-v2 (local, free)
+torch==2.2.2                   # backend for sentence-transformers
+
+# ── Vector Store ──────────────────────────────────────────
+chromadb==0.5.0          # local vector DB, no server needed
+
+# ── LLM (HuggingFace local) ───────────────────────────────
+transformers==4.41.0     # pipeline for text generation
+accelerate==0.30.0       # speeds up model loading
+
+# ── Validation & Config ───────────────────────────────────
+pydantic==2.7.1
+pydantic-settings==2.2.1
+python-dotenv==1.0.1
+
+# ── Utilities ─────────────────────────────────────────────
+tiktoken==0.7.0          # token counting for chunking
+tqdm==4.66.4             # progress bars during ingestion
+loguru==0.7.2            # clean structured logging

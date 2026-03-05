@@ -1,8 +1,9 @@
 import os
 import sys
+import shutil
 from contextlib import asynccontextmanager
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
@@ -104,6 +105,27 @@ async def ingest(request: IngestRequest = IngestRequest()):
     return IngestResponse(status='success', message=f'Successfully indexed {len(doc_names)} document(s).', documents=len(doc_names), total_chunks=len(chunks))
 
 
+@app.post('/upload-file', tags=['Ingestion'])
+async def upload_file(file: UploadFile = File(...)):
+    """Upload a single file to the docs directory for ingestion."""
+    ALLOWED = {'.txt', '.md', '.pdf'}
+    ext = os.path.splitext(file.filename or '')[1].lower()
+    if ext not in ALLOWED:
+        raise HTTPException(status_code=400, detail=f'Unsupported file type: {ext}. Allowed: {ALLOWED}')
+    docs_dir = os.getenv('DOCS_DIR', 'docs')
+    os.makedirs(docs_dir, exist_ok=True)
+    dest = os.path.join(docs_dir, file.filename or 'upload')
+    try:
+        with open(dest, 'wb') as f:
+            shutil.copyfileobj(file.file, f)
+        size = os.path.getsize(dest)
+        logger.info(f'File uploaded: {file.filename} ({size} bytes)')
+        return {'filename': file.filename, 'size': size, 'status': 'uploaded'}
+    except Exception as e:
+        logger.error(f'File upload failed: {e}')
+        raise HTTPException(status_code=500, detail=f'Upload failed: {str(e)}')
+
+
 @app.post('/ask', response_model=AskResponse, tags=['Q&A'])
 async def ask(request: AskRequest):
     if not app_state['ready'] or app_state['collection'] is None:
@@ -121,11 +143,18 @@ async def ask(request: AskRequest):
 
     # ── Hallucination guard ──────────────────────────────────────────────
     # 1. Direct checks
-    is_not_found = (
-        answer == NOT_FOUND_RESPONSE
-        or confidence == 'low'
-        or 'could not find' in answer.lower()
-    )
+    hallucination_reason = None
+    if not results:
+        is_not_found = True
+        hallucination_reason = "No relevant documents found"
+    elif answer == NOT_FOUND_RESPONSE:
+        is_not_found = True
+        hallucination_reason = "LLM returned NOT_FOUND_RESPONSE"
+    elif 'could not find' in answer.lower():
+        is_not_found = True
+        hallucination_reason = "LLM mentioned it could not find the answer"
+    else:
+        is_not_found = False
 
     # 2. Content-overlap check: do the query's key terms actually appear
     #    in any retrieved snippet? If not, the re-ranker gave a false positive.
@@ -136,18 +165,39 @@ async def ask(request: AskRequest):
                       'could', 'should', 'may', 'might', 'how', 'who', 'where', 'when',
                       'why', 'which', 'with', 'from', 'about', 'me', 'my', 'i', 'you',
                       'your', 'it', 'its', 'they', 'them', 'their', 'we', 'our', 'give',
-                      'there', 'here', 'all', 'any', 'some', 'no', 'not', 'but'}
-        query_words = [w for w in request.question.lower().split() if len(w) > 2 and w not in stopwords]
+                      'there', 'here', 'all', 'any', 'some', 'no', 'not', 'but', 'summary',
+                      'detailed', 'analysis', 'information', 'points', 'main', 'document',
+                      'show', 'tell', 'explain', 'brief', 'review', 'about'}
+        
+        # Strip common punctuation from words
+        raw_words = [w.strip('?.,!"').lower() for w in request.question.split()]
+        query_words = [w for w in raw_words if len(w) > 2 and w not in stopwords]
+        
         if query_words:
             all_snippets = ' '.join(r.snippet.lower() for r in results)
-            hits = sum(1 for w in query_words if w in all_snippets)
+            # Check if any query word appears in snippets OR matches a retrieved document name
+            found_in_snippets = [w for w in query_words if w in all_snippets]
+            found_in_filenames = [w for w in query_words if any(w in r.document.lower() for r in results)]
+            
+            hits = len(set(found_in_snippets + found_in_filenames))
             overlap_ratio = hits / len(query_words)
+            
             logger.debug(f'Overlap check: {hits}/{len(query_words)} words found ({overlap_ratio:.0%}), words={query_words}')
-            if overlap_ratio < 0.25:
+            
+            # If overlap is very low, block it.
+            # But if confidence is high/medium, be more lenient.
+            threshold = 0.20 if confidence != 'low' else 0.40
+            if overlap_ratio < threshold:
                 is_not_found = True
-                logger.info(f'Hallucination guard: query terms {query_words} not found in snippets (overlap={overlap_ratio:.0%})')
+                hallucination_reason = f"Low overlap ratio ({overlap_ratio:.0%}) with query terms {query_words}"
+        else:
+            # If no key terms (e.g. "tell me more"), rely on confidence
+            if confidence == 'low':
+                is_not_found = True
+                hallucination_reason = "No key terms in query and low confidence retrieval"
 
     if is_not_found:
+        logger.info(f'Answer blocked by Hallucination Guard: {hallucination_reason or "Reason unknown"} | confidence={confidence}')
         answer = NOT_FOUND_RESPONSE
         confidence = 'low'
         sources = []
@@ -176,3 +226,27 @@ async def list_documents():
     except Exception as e:
         logger.error(f'Failed to list documents: {e}')
         return {'documents': [], 'count': 0}
+
+
+@app.get('/document/{filename}', tags=['Information'])
+async def get_document_content(filename: str):
+    """Returns the content of a specific document."""
+    docs_dir = os.getenv('DOCS_DIR', 'docs')
+    safe_name = os.path.basename(filename)
+    file_path = os.path.join(docs_dir, safe_name)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"Document '{filename}' not found.")
+    
+    try:
+        # For simplicity, we assume text-based files. For PDFs, a real app would extract text.
+        # But for this RAG bot, let's just try to read it.
+        if file_path.endswith('.pdf'):
+            return {"content": "[PDF Content - Text extraction required for full view]", "filename": safe_name}
+            
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        return {"content": content, "filename": safe_name}
+    except Exception as e:
+        logger.error(f"Failed to read document {filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to read document: {str(e)}")

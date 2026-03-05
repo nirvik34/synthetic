@@ -11,12 +11,12 @@ function esc(s: string): string {
         .replace(/\n/g, "<br>");
 }
 
-/** Transform [1], [2] etc. in the answer into styled superscript footnotes */
+/** Transform [1], [2] etc. in the answer into styled monochrome footnotes */
 function renderWithFootnotes(text: string): string {
     const escaped = esc(text);
     return escaped.replace(
         /\[(\d+)\]/g,
-        '<sup class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary/20 text-primary text-[8px] font-bold ml-0.5 cursor-pointer hover:bg-primary/40 transition-colors align-super">$1</sup>'
+        '<sup class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-black text-[10px] font-bold ml-1 cursor-pointer align-super" data-citation="$1">$1</sup>'
     );
 }
 
@@ -32,7 +32,7 @@ function highlightSnippet(snippet: string, query: string): string {
     const regex = new RegExp(`(${words.join("|")})`, "gi");
     return escaped.replace(
         regex,
-        '<mark class="bg-primary/25 text-primary px-0.5 rounded-sm">$1</mark>'
+        '<mark class="bg-white text-black px-0.5">$1</mark>'
     );
 }
 
@@ -45,60 +45,54 @@ function SourcesDropdown({ sources, query }: SourcesDropdownProps) {
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="border-t border-white/5 mt-2">
+        <div className="border-t border-[#262626] mt-0">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full px-6 py-3 flex items-center justify-between hover:bg-white/5 transition-colors group text-left outline-none cursor-pointer"
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group text-left outline-none cursor-pointer"
             >
-                <div className="flex items-center gap-2">
-                    <span className="material-symbols-rounded text-base text-primary/50 group-hover:text-primary transition-colors">
+                <div className="flex items-center gap-3">
+                    <span className="material-symbols-rounded text-lg text-[#525252] group-hover:text-white transition-colors">
                         description
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
-                        Sources ({sources.length})
+                    <span className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-brutal group-hover:text-white transition-colors">
+                        Sources [{sources.length}]
                     </span>
                 </div>
-                <span className="material-symbols-rounded text-slate-500 group-hover:text-primary transition-colors">
+                <span className="material-symbols-rounded text-white">
                     {open ? "expand_less" : "expand_more"}
                 </span>
             </button>
             {open && (
-                <div className="px-6 pb-6 pt-2 space-y-2">
-                    <div className="grid grid-cols-1 gap-2">
+                <div className="px-6 pb-6 pt-2 space-y-4">
+                    <div className="space-y-2">
                         {sources.map((s, i) => (
                             <div
                                 key={i}
-                                className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group/card"
+                                className="p-4 rounded-xl bg-[#111111] border border-[#262626] hover:border-[#404040] transition-all"
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/20 text-primary text-[9px] font-bold shrink-0">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-black text-[9px] font-bold shrink-0">
                                             {i + 1}
                                         </span>
-                                        <span className="text-[10px] text-primary font-mono truncate">
+                                        <span className="text-[10px] text-white font-bold uppercase tracking-widest truncate">
                                             {s.document}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        {/* Score bar */}
-                                        <div className="w-16 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-20 h-1 bg-[#262626]">
                                             <div
-                                                className={`h-full rounded-full transition-all ${s.score > 0.7
-                                                        ? "bg-primary"
-                                                        : s.score > 0.4
-                                                            ? "bg-yellow-400"
-                                                            : "bg-red-400"
-                                                    }`}
+                                                className="h-full bg-white transition-all"
                                                 style={{ width: `${Math.min(s.score * 100, 100)}%` }}
                                             />
                                         </div>
-                                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/60 font-mono">
-                                            {(s.score * 100).toFixed(0)}%
+                                        <span className="text-[9px] font-mono text-[#525252]">
+                                            {Math.round(s.score * 100)}%
                                         </span>
                                     </div>
                                 </div>
                                 <p
-                                    className="text-[11px] text-slate-400 leading-relaxed"
+                                    className="text-[13px] text-[#d4d4d4] leading-relaxed font-light"
                                     dangerouslySetInnerHTML={{
                                         __html: highlightSnippet(s.snippet, query || ""),
                                     }}
@@ -121,16 +115,13 @@ function FollowUpChips({ suggestions, onSelect }: FollowUpChipsProps) {
     if (!suggestions || suggestions.length === 0) return null;
 
     return (
-        <div className="flex flex-wrap gap-2 mt-3 ml-1">
+        <div className="flex flex-wrap gap-2 mt-4 ml-1">
             {suggestions.map((q, i) => (
                 <button
                     key={i}
                     onClick={() => onSelect(q)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] text-slate-400 hover:bg-primary/[0.08] hover:border-primary/25 hover:text-primary transition-all cursor-pointer group"
+                    className="px-3 py-2 border border-[#262626] bg-[#111111] text-[11px] text-[#d4d4d4] hover:text-white hover:border-white transition-all cursor-pointer uppercase tracking-widest rounded-full"
                 >
-                    <span className="material-symbols-rounded text-sm opacity-50 group-hover:opacity-100 transition-opacity">
-                        arrow_forward
-                    </span>
                     {q}
                 </button>
             ))}
@@ -141,10 +132,23 @@ function FollowUpChips({ suggestions, onSelect }: FollowUpChipsProps) {
 interface ChatAreaProps {
     messages: ChatMessage[];
     onFollowUp: (q: string) => void;
+    onCitationClick?: (index: number, msgId: string) => void;
 }
 
-export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
+export default function ChatArea({ messages, onFollowUp, onCitationClick }: ChatAreaProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const handleChatClick = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "SUP" && target.hasAttribute("data-citation")) {
+            const index = parseInt(target.getAttribute("data-citation") || "0", 10);
+            const bubble = target.closest("[data-msg-id]");
+            if (bubble) {
+                const msgId = bubble.getAttribute("data-msg-id") || "";
+                onCitationClick?.(index, msgId);
+            }
+        }
+    };
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -152,7 +156,6 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
         }
     }, [messages]);
 
-    // Find the last bot message's question for highlighting
     const lastQuery = useMemo(() => {
         for (let i = messages.length - 1; i >= 0; i--) {
             if (messages[i].type === "user") return messages[i].text || "";
@@ -164,51 +167,44 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
         return (
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto px-8 py-8 space-y-8 z-10 relative custom-scrollbar"
+                className="flex-1 overflow-y-auto px-8 py-8 z-10 relative custom-scrollbar bg-transparent"
             >
                 <div className="h-full flex flex-col items-center justify-center text-center px-4">
-                    <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-8 glow">
-                        <span className="material-symbols-rounded text-primary text-5xl">
-                            neurology
-                        </span>
-                    </div>
-                    <h2 className="text-3xl font-display font-bold mb-4 tracking-tight">
+                    <h2 className="text-5xl font-extrabold mb-8 tracking-tighter text-white drop-shadow-2xl" style={{ fontFamily: "'Outfit', sans-serif" }}>
                         How can I help you today?
                     </h2>
-                    <p className="text-slate-500 text-sm max-w-md leading-relaxed mb-12">
-                        Upload documents to index them into the local vector store. I&apos;ll
-                        provide precise answers with verified citations and zero
-                        hallucination.
+                    <p className="text-[#8a8a8a] text-[12px] max-w-sm leading-relaxed mb-12 uppercase tracking-widest font-bold">
+                        Upload documents to index. Precise answers. Verified citations. Zero hallucination.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
                         {[
                             {
                                 icon: "auto_awesome",
                                 title: "Summarize",
-                                desc: "Extract key insights from long PDF/text reports.",
+                                desc: "Extract key insights from long reports.",
                             },
                             {
                                 icon: "gavel",
                                 title: "Analyze",
-                                desc: "Detect risk factors and governing law in contracts.",
+                                desc: "Detect risk factors in legal contracts.",
                             },
                             {
                                 icon: "security",
                                 title: "Secure",
-                                desc: "100% local processing. No data ever leaves this machine.",
+                                desc: "100% local processing. No data leaves.",
                             },
                         ].map((card) => (
                             <div
                                 key={card.title}
-                                className="p-6 rounded-2xl bg-white/5 border border-white/5 glass-card text-left hover:border-primary/20 transition-all"
+                                className="p-6 border border-[#262626] bg-[#111111] text-left hover:border-white transition-all rounded-2xl"
                             >
-                                <span className="material-symbols-rounded text-primary mb-3 bg-primary/10 p-2 rounded-xl inline-block">
+                                <span className="material-symbols-rounded text-white mb-4 block">
                                     {card.icon}
                                 </span>
-                                <p className="font-bold text-sm mb-1 text-slate-200">
+                                <p className="font-bold text-[12px] mb-2 text-white uppercase tracking-widest">
                                     {card.title}
                                 </p>
-                                <p className="text-xs text-slate-500 leading-relaxed">
+                                <p className="text-[11px] text-[#8a8a8a] leading-relaxed uppercase tracking-widest">
                                     {card.desc}
                                 </p>
                             </div>
@@ -221,15 +217,17 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
 
     return (
         <div
+            id="chat-area"
             ref={scrollRef}
-            className="flex-1 overflow-y-auto px-8 py-8 space-y-8 z-10 relative custom-scrollbar"
+            onClick={handleChatClick}
+            className="flex-1 overflow-y-auto px-8 py-10 space-y-12 z-10 relative custom-scrollbar bg-transparent"
         >
             {messages.map((msg, msgIdx) => {
                 if (msg.type === "user") {
                     return (
                         <div key={msg.id} className="flex justify-end fade-up">
                             <div
-                                className="max-w-xl px-6 py-4 rounded-3xl rounded-tr-sm bg-primary/10 border border-primary/20 text-sm text-slate-100 shadow-lg"
+                                className="max-w-xl px-6 py-4 border border-white bg-[#111111] text-[14px] font-light text-white leading-relaxed rounded-2xl rounded-tr-none"
                                 dangerouslySetInnerHTML={{ __html: esc(msg.text || "") }}
                             />
                         </div>
@@ -238,16 +236,16 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
 
                 if (msg.type === "thinking") {
                     return (
-                        <div key={msg.id} className="flex items-center gap-4 fade-up">
-                            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0">
-                                <span className="material-symbols-rounded text-primary text-xl">
+                        <div key={msg.id} className="flex items-start gap-5 fade-up">
+                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-rounded text-black text-lg">
                                     neurology
                                 </span>
                             </div>
-                            <div className="flex items-center gap-1.5 px-6 py-4 bg-white/5 border border-white/5 rounded-3xl rounded-tl-sm glass">
-                                <span className="w-1.5 h-1.5 rounded-full bg-primary dot1" />
-                                <span className="w-1.5 h-1.5 rounded-full bg-primary dot2" />
-                                <span className="w-1.5 h-1.5 rounded-full bg-primary dot3" />
+                            <div className="flex items-center gap-2 px-6 py-4 bg-[#0A0A0A] border border-[#262626] rounded-2xl">
+                                <span className="w-1 h-1 bg-white dot1" />
+                                <span className="w-1 h-1 bg-white dot2" />
+                                <span className="w-1 h-1 bg-white dot3" />
                             </div>
                         </div>
                     );
@@ -255,13 +253,13 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
 
                 if (msg.type === "error") {
                     return (
-                        <div key={msg.id} className="flex gap-4 fade-up">
-                            <div className="w-10 h-10 bg-red-500/10 rounded-2xl flex items-center justify-center shrink-0">
-                                <span className="material-symbols-rounded text-red-400">
+                        <div key={msg.id} className="flex gap-5 fade-up">
+                            <div className="w-8 h-8 bg-[#262626] rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-rounded text-white text-lg">
                                     error
                                 </span>
                             </div>
-                            <div className="px-6 py-4 bg-red-500/10 border border-red-500/20 rounded-3xl rounded-tl-sm text-xs text-red-300 font-mono max-w-lg shadow-lg">
+                            <div className="px-6 py-4 bg-[#111111] border border-[#262626] text-[12px] text-[#d4d4d4] font-mono tracking-widest uppercase shadow-none rounded-2xl">
                                 {esc(msg.text || "")}
                             </div>
                         </div>
@@ -269,11 +267,8 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
                 }
 
                 if (msg.type === "bot" && msg.data) {
-                    const isNF = msg.data.answer
-                        .toLowerCase()
-                        .includes("could not find");
+                    const isNF = msg.data.answer.toLowerCase().includes("could not find");
 
-                    // Find the user question for this bot response (previous user message)
                     let queryForHighlight = lastQuery;
                     for (let j = msgIdx - 1; j >= 0; j--) {
                         if (messages[j].type === "user") {
@@ -283,34 +278,33 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
                     }
 
                     const isLastBot =
-                        msgIdx ===
-                        messages.length - 1 ||
+                        msgIdx === messages.length - 1 ||
                         !messages.slice(msgIdx + 1).some((m) => m.type === "bot");
 
                     return (
-                        <div key={msg.id} className="flex gap-4 fade-up items-start">
-                            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 mt-6 shadow-lg shadow-primary/10">
-                                <span className="material-symbols-rounded text-primary text-xl">
+                        <div key={msg.id} data-msg-id={msg.id} className="flex gap-5 fade-up items-start">
+                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 mt-8">
+                                <span className="material-symbols-rounded text-black text-lg">
                                     neurology
                                 </span>
                             </div>
-                            <div className="flex-1 max-w-3xl">
-                                <div className="flex items-center gap-3 mb-2 ml-1">
-                                    <span className="text-xs font-bold text-slate-400">
+                            <div className="flex-1 max-w-4xl">
+                                <div className="flex items-center gap-4 mb-3 ml-1">
+                                    <span className="text-[12px] font-bold text-white uppercase tracking-brutal">
                                         DocuMind AI
                                     </span>
                                     <span
-                                        className={`px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter badge-${msg.data.confidence}`}
+                                        className={`px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase badge-${msg.data.confidence}`}
                                     >
-                                        {msg.data.confidence.toUpperCase()}
+                                        {msg.data.confidence}
                                     </span>
-                                    <span className="text-[10px] text-slate-600 font-mono ml-auto">
+                                    <span className="text-[11px] text-[#525252] font-mono ml-auto">
                                         {msg.ms}ms
                                     </span>
                                 </div>
-                                <div className="bg-white/5 border border-white/5 rounded-3xl rounded-tl-sm overflow-hidden glass shadow-2xl">
+                                <div className="bg-[#0A0A0A] border border-[#262626] overflow-hidden rounded-2xl">
                                     <div
-                                        className={`px-6 py-5 text-sm leading-relaxed ${isNF ? "text-slate-500 italic" : "text-slate-200"
+                                        className={`px-6 py-6 text-[14px] leading-relaxed font-light ${isNF ? "text-[#8a8a8a] italic" : "text-white"
                                             }`}
                                         dangerouslySetInnerHTML={{
                                             __html: renderWithFootnotes(msg.data.answer),
@@ -324,7 +318,6 @@ export default function ChatArea({ messages, onFollowUp }: ChatAreaProps) {
                                     )}
                                 </div>
 
-                                {/* Follow-up suggestions — only on the last bot message */}
                                 {isLastBot && msg.data.follow_ups && (
                                     <FollowUpChips
                                         suggestions={msg.data.follow_ups}
