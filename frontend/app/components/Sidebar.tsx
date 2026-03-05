@@ -30,6 +30,7 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
     // File upload state
     const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -118,9 +119,12 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
     const handleUploadAndIndex = async () => {
         if (selectedFiles.length === 0) return;
         setIsUploading(true);
+        setUploadProgress(0);
 
         let successCount = 0;
         const updated = [...selectedFiles];
+        const totalFiles = updated.filter(f => f.status === "pending").length;
+        let processedCount = 0;
 
         for (let i = 0; i < updated.length; i++) {
             if (updated[i].status !== "pending") continue;
@@ -134,6 +138,8 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
             } catch {
                 updated[i] = { ...updated[i], status: "error" };
             }
+            processedCount++;
+            setUploadProgress(Math.round((processedCount / totalFiles) * 100));
             setSelectedFiles([...updated]);
         }
 
@@ -382,23 +388,31 @@ export default function Sidebar({ onSetQuestion, onViewDoc, onDataChange, histor
                     <button
                         onClick={handleUploadAndIndex}
                         disabled={selectedFiles.length === 0 || isUploading}
-                        className="w-full flex items-center justify-center gap-2 brutal-btn py-4 disabled:opacity-40 cursor-pointer text-[13px] shadow-2xl shadow-white/5 rounded-2xl"
+                        className="w-full relative overflow-hidden flex items-center justify-center gap-2 brutal-btn py-4 disabled:opacity-40 cursor-pointer text-[13px] shadow-2xl shadow-white/5 rounded-2xl group"
                     >
-                        {isUploading ? (
-                            <>
-                                <span className="material-symbols-rounded spin">sync</span>
-                                UPLOADING...
-                            </>
-                        ) : (
-                            <>
-                                UPLOAD & INDEX
-                                {selectedFiles.length > 0 && (
-                                    <span className="ml-1 opacity-50 bg-black/20 px-1.5 py-0.5 rounded-lg text-[10px]">
-                                        {selectedFiles.length}
-                                    </span>
-                                )}
-                            </>
+                        {isUploading && (
+                            <div
+                                className="absolute left-0 top-0 h-full bg-black/10 transition-all duration-300 ease-out"
+                                style={{ width: `${uploadProgress}%` }}
+                            />
                         )}
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            {isUploading ? (
+                                <>
+                                    <span className="material-symbols-rounded spin">sync</span>
+                                    {uploadProgress}% UPLOADING...
+                                </>
+                            ) : (
+                                <>
+                                    UPLOAD & INDEX
+                                    {selectedFiles.length > 0 && (
+                                        <span className="ml-1 opacity-50 bg-black/20 px-1.5 py-0.5 rounded-lg text-[10px] group-hover:bg-black/30">
+                                            {selectedFiles.length}
+                                        </span>
+                                    )}
+                                </>
+                            )}
+                        </span>
                     </button>
                 </div>
             </aside>
