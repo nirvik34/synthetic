@@ -33,18 +33,30 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
-        ::-webkit-scrollbar {
+        .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
-            height: 4px;
         }
 
-        ::-webkit-scrollbar-track {
+        .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
 
-        ::-webkit-scrollbar-thumb {
+        .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #333;
             border-radius: 10px;
+        }
+
+        .glass {
+            background: rgba(31, 31, 31, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .glow {
@@ -147,293 +159,277 @@
 <body class="bg-bg-dark text-slate-100 font-sans h-screen flex overflow-hidden">
 
     <!-- ══════════════════════════ LEFT SIDEBAR ══════════════════════════ -->
-    <aside class="w-72 flex-shrink-0 bg-sidebar-dark border-r border-white/5 flex flex-col p-4 overflow-hidden">
+    <aside class="w-80 flex-shrink-0 bg-sidebar-dark border-r border-white/5 flex flex-col p-4 overflow-hidden">
 
         <!-- Logo -->
-        <div class="flex items-center gap-2.5 mb-5 px-1">
-            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center glow shrink-0">
-                <span class="material-symbols-rounded text-black text-xl">bubble_chart</span>
+        <div class="flex items-center justify-between mb-8 px-2">
+            <div class="flex items-center gap-2.5">
+                <div
+                    class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
+                    <span class="material-symbols-rounded text-black text-xl">bubble_chart</span>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg leading-none tracking-tight">DocuMind AI</h1>
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                        <div id="status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></div>
+                        <p id="status-text" class="text-[9px] text-slate-500 font-mono uppercase tracking-tighter">
+                            checking...</p>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h1 class="font-display font-bold text-base leading-none">DocuMind AI</h1>
-                <p class="text-[10px] text-slate-500 mt-0.5 font-mono">RAG Q&amp;A · localhost:8000</p>
-            </div>
+            <button class="p-1.5 hover:bg-white/5 rounded-lg text-slate-500 transition-colors">
+                <span class="material-symbols-rounded text-xl">side_navigation</span>
+            </button>
         </div>
 
-        <!-- Status row -->
-        <div
-            class="mx-1 mb-3 px-3 py-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div id="status-dot" class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></div>
-                <span id="status-text" class="text-xs text-slate-400 font-mono">checking...</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <span class="material-symbols-rounded text-primary text-sm">database</span>
-                <span id="chunk-count" class="text-xs font-mono text-slate-400">—</span>
-            </div>
+        <!-- Search -->
+        <div class="relative mx-1 mb-6">
+            <span
+                class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
+            <input id="doc-search"
+                class="w-full bg-white/5 border border-white/5 focus:border-primary/40 focus:ring-0 rounded-xl pl-10 py-2.5 text-xs placeholder-slate-600 text-slate-300 transition-all"
+                placeholder="Search sidebar..." type="text" oninput="filterSidebar()" />
         </div>
 
-        <!-- Ingest -->
-        <button id="ingest-btn" onclick="ingestDocs()"
-            class="mx-1 mb-4 flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 text-primary font-semibold py-2.5 rounded-xl transition-all text-sm">
-            <span class="material-symbols-rounded text-lg">cloud_sync</span>
-            Run /ingest
-        </button>
+        <!-- Scrollable -->
+        <div class="flex-1 overflow-y-auto space-y-6 pr-0.5 custom-scrollbar">
 
-        <!-- Presets -->
-        <div class="flex-1 overflow-y-auto space-y-3 pr-0.5">
+            <!-- Dynamic Section -->
+            <div id="indexed-docs-section" class="hidden">
+                <div class="flex items-center justify-between px-2 mb-3">
+                    <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">📚 Indexed
+                        Documents</span>
+                    <span id="doc-count-badge"
+                        class="bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px] font-bold">0</span>
+                </div>
+                <div id="indexed-docs-list" class="space-y-1">
+                    <!-- Dynamic docs here -->
+                </div>
+            </div>
 
+            <!-- Presets -->
             <div>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-1">⚖ Legal
-                    Contracts</p>
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-3">⚖ Legal Presets
+                    (CUAD)</p>
                 <div class="space-y-0.5">
                     <button onclick="setQ('Who are the parties in this services agreement?')" class="preset-btn">
-                        <span class="tag tag-legal">CUAD</span>Parties involved
+                        <span class="tag tag-legal">DOC</span>Parties involved
                     </button>
                     <button onclick="setQ('What is the effective date of the agreement?')" class="preset-btn">
-                        <span class="tag tag-legal">CUAD</span>Effective date
+                        <span class="tag tag-legal">DOC</span>Effective date
                     </button>
-                    <button onclick="setQ('What are the termination conditions in the contract?')" class="preset-btn">
-                        <span class="tag tag-legal">CUAD</span>Termination conditions
-                    </button>
-                    <button onclick="setQ('What is the governing law of this agreement?')" class="preset-btn">
-                        <span class="tag tag-legal">CUAD</span>Governing law
+                    <button onclick="setQ('What are the termination conditions?')" class="preset-btn">
+                        <span class="tag tag-legal">DOC</span>Termination
                     </button>
                 </div>
             </div>
 
             <div>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-1">📖 Wikipedia</p>
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-3">🛡 Guard Tests
+                </p>
                 <div class="space-y-0.5">
-                    <button onclick="setQ('What is artificial intelligence?')" class="preset-btn">
-                        <span class="tag tag-wiki">WIKI</span>Artificial intelligence
+                    <button onclick="setQ('What is the population of Mars?')" class="preset-btn">
+                        <span class="tag tag-guard">SAFE</span>Mars population
                     </button>
-                    <button onclick="setQ('How does an algorithm work?')" class="preset-btn">
-                        <span class="tag tag-wiki">WIKI</span>How algorithms work
-                    </button>
-                    <button onclick="setQ('What is integer factorization used for?')" class="preset-btn">
-                        <span class="tag tag-wiki">WIKI</span>Integer factorization
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-1">📋 Policies</p>
-                <div class="space-y-0.5">
-                    <button onclick="setQ('What is the refund policy?')" class="preset-btn">
-                        <span class="tag tag-demo">DEMO</span>Refund policy
-                    </button>
-                    <button onclick="setQ('How is user data encrypted and protected?')" class="preset-btn">
-                        <span class="tag tag-demo">DEMO</span>Data protection
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2 mb-1">🛡 Hallucination
-                    Guard</p>
-                <div class="space-y-0.5">
-                    <button onclick="setQ('What is the population of Mars according to the census?')"
-                        class="preset-btn">
-                        <span class="tag tag-guard">GUARD</span>Population of Mars
-                    </button>
-                    <button onclick="setQ('What is the CEO salary mentioned in the documents?')" class="preset-btn">
-                        <span class="tag tag-guard">GUARD</span>CEO salary
+                    <button onclick="setQ('What is the CEO salary?')" class="preset-btn">
+                        <span class="tag tag-guard">SAFE</span>Salary info
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Session stats -->
-        <div class="mt-3 pt-3 border-t border-white/5 grid grid-cols-2 gap-2">
-            <div class="bg-white/5 rounded-xl p-2.5 text-center">
-                <p class="text-xl font-bold text-primary" id="stat-queries">0</p>
-                <p class="text-[9px] text-slate-500 uppercase tracking-wider">Queries</p>
+        <!-- Bottom Action -->
+        <div class="mt-auto pt-6 border-t border-white/5 space-y-4">
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 border border-white/5">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-rounded text-primary text-sm">database</span>
+                    <span id="chunk-count" class="text-[10px] font-mono text-slate-400">0 chunks</span>
+                </div>
+                <span class="text-[9px] font-mono text-slate-600">v1.0.0</span>
             </div>
-            <div class="bg-white/5 rounded-xl p-2.5 text-center">
-                <p class="text-xl font-bold text-primary" id="stat-high">0</p>
-                <p class="text-[9px] text-slate-500 uppercase tracking-wider">High Conf</p>
-            </div>
-            <div class="bg-white/5 rounded-xl p-2.5 text-center">
-                <p class="text-xl font-bold text-slate-300" id="stat-latency">—</p>
-                <p class="text-[9px] text-slate-500 uppercase tracking-wider">Avg ms</p>
-            </div>
-            <div class="bg-white/5 rounded-xl p-2.5 text-center">
-                <p class="text-xl font-bold text-red-400" id="stat-notfound">0</p>
-                <p class="text-[9px] text-slate-500 uppercase tracking-wider">Not Found</p>
-            </div>
+            <button id="ingest-btn" onclick="ingestDocs()"
+                class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-black font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-primary/20">
+                <span class="material-symbols-rounded">cloud_upload</span>
+                Ingest Documents
+            </button>
         </div>
     </aside>
 
     <!-- ══════════════════════════ MAIN ══════════════════════════ -->
-    <main class="flex-1 flex flex-col relative overflow-hidden">
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-bg-dark">
 
         <!-- Ambient -->
-        <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-25">
-            <div class="absolute -top-1/4 -right-1/4 w-2/3 h-2/3 bg-primary/20 blur-[140px] rounded-full"></div>
-            <div class="absolute -bottom-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 blur-[120px] rounded-full"></div>
+        <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+            <div class="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] bg-primary/20 blur-[160px] rounded-full"></div>
+            <div class="absolute -bottom-1/4 -left-1/4 w-[400px] h-[400px] bg-primary/10 blur-[130px] rounded-full">
+            </div>
         </div>
 
         <!-- Header -->
-        <header class="h-14 flex items-center justify-between px-8 border-b border-white/5 z-10 shrink-0">
-            <div class="flex items-center gap-3">
+        <header class="h-16 flex items-center justify-between px-8 border-b border-white/5 z-10 shrink-0 glass">
+            <div class="flex items-center gap-4">
                 <span class="material-symbols-rounded text-slate-600">chevron_right</span>
-                <span class="text-sm font-medium text-slate-300">Document Q&amp;A</span>
+                <span class="text-sm font-medium text-slate-300">Intelligent RAG Assistant</span>
                 <div
-                    class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20">
-                    flan-t5 · MiniLM · CrossEncoder
+                    class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/25">
+                    CPU-Optimized · FLAN-T5
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <label class="text-xs text-slate-500 font-mono">top_k</label>
-                <select id="top-k"
-                    class="bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 px-2 py-1 outline-none focus:border-primary/40 cursor-pointer">
-                    <option value="3">3</option>
-                    <option value="5" selected>5</option>
-                    <option value="8">8</option>
-                    <option value="10">10</option>
-                </select>
-                <button onclick="clearChat()" title="Clear chat"
-                    class="p-1.5 text-slate-500 hover:text-red-400 transition-colors">
-                    <span class="material-symbols-rounded text-lg">delete_sweep</span>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 font-mono">top_k</span>
+                    <select id="top-k"
+                        class="bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 px-2 py-1 outline-none focus:border-primary/40 cursor-pointer">
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <div class="w-px h-6 bg-white/5"></div>
+                <button onclick="clearChat()"
+                    class="p-2 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-red-400/10">
+                    <span class="material-symbols-rounded">delete_sweep</span>
                 </button>
             </div>
         </header>
 
-        <!-- Chat -->
-        <div id="chat-area" class="flex-1 overflow-y-auto px-8 py-6 space-y-6 z-10 relative">
-            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center px-4 min-h-96">
-                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-5 glow">
-                    <span class="material-symbols-rounded text-primary text-4xl">neurology</span>
+        <!-- Chat Area -->
+        <div id="chat-area" class="flex-1 overflow-y-auto px-8 py-8 space-y-8 z-10 relative custom-scrollbar">
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center px-4">
+                <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-8 glow">
+                    <span class="material-symbols-rounded text-primary text-5xl">neurology</span>
                 </div>
-                <h2 class="text-2xl font-display font-bold mb-2 tracking-tight">How can I help you today?</h2>
-                <p class="text-slate-500 text-sm max-w-md leading-relaxed mb-8">
-                    Ask any question about your documents. Answers are grounded in real indexed content — with
-                    citations, confidence scores, and zero hallucination.
+                <h2 class="text-3xl font-display font-bold mb-4 tracking-tight">How can I help you today?</h2>
+                <p class="text-slate-500 text-sm max-w-md leading-relaxed mb-12">
+                    Upload documents to index them into the local vector store.
+                    I'll provide precise answers with verified citations and zero hallucination.
                 </p>
-                <div class="grid grid-cols-3 gap-3 w-full max-w-lg">
-                    <button onclick="setQ('Who are the parties in this services agreement?')"
-                        class="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group">
-                        <span class="material-symbols-rounded text-primary text-2xl mb-2 block">gavel</span>
-                        <p class="text-xs font-semibold mb-1">Legal</p>
-                        <p class="text-[10px] text-slate-500">Contract parties & terms</p>
-                    </button>
-                    <button onclick="setQ('What is artificial intelligence?')"
-                        class="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group">
-                        <span class="material-symbols-rounded text-primary text-2xl mb-2 block">auto_awesome</span>
-                        <p class="text-xs font-semibold mb-1">Wikipedia</p>
-                        <p class="text-[10px] text-slate-500">AI & CS knowledge</p>
-                    </button>
-                    <button onclick="setQ('What is the population of Mars?')"
-                        class="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group">
-                        <span class="material-symbols-rounded text-primary text-2xl mb-2 block">security</span>
-                        <p class="text-xs font-semibold mb-1">Guard Test</p>
-                        <p class="text-[10px] text-slate-500">Hallucination prevention</p>
-                    </button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/5 glass-card text-left">
+                        <span
+                            class="material-symbols-rounded text-primary mb-3 bg-primary/10 p-2 rounded-xl">auto_awesome</span>
+                        <p class="font-bold text-sm mb-1 text-slate-200">Summarize</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Extract key insights from long PDF/text
+                            reports.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/5 glass-card text-left">
+                        <span
+                            class="material-symbols-rounded text-primary mb-3 bg-primary/10 p-2 rounded-xl">gavel</span>
+                        <p class="font-bold text-sm mb-1 text-slate-200">Analyze</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Detect risk factors and governing law in
+                            contracts.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/5 glass-card text-left">
+                        <span
+                            class="material-symbols-rounded text-primary mb-3 bg-primary/10 p-2 rounded-xl">security</span>
+                        <p class="font-bold text-sm mb-1 text-slate-200">Secure</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">100% local processing. No data ever leaves
+                            this machine.</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Input -->
-        <div class="px-8 pb-6 pt-2 z-10 relative shrink-0">
-            <div
-                class="flex items-end gap-2 bg-card-dark border border-white/10 rounded-2xl p-2 shadow-2xl transition-all duration-200 focus-within:border-primary/40 focus-within:glow-ring">
-                <textarea id="q-input" rows="1" placeholder="Type your question here..." onkeydown="handleKey(event)"
-                    oninput="autoResize(this)"
-                    class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2.5 px-3 resize-none max-h-32 placeholder-slate-600 text-slate-200 outline-none leading-relaxed">
-      </textarea>
-                <div class="pb-1 shrink-0">
-                    <button onclick="sendQuestion()" id="send-btn"
-                        class="w-10 h-10 bg-primary hover:bg-primary/90 disabled:bg-white/10 disabled:cursor-not-allowed text-black rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
-                        <span class="material-symbols-rounded text-xl">arrow_upward</span>
-                    </button>
+        <!-- Input Area -->
+        <div class="px-8 pb-8 pt-4 z-10 relative shrink-0">
+            <div class="max-w-4xl mx-auto">
+                <div
+                    class="bg-card-dark border border-white/10 rounded-2xl p-2.5 shadow-2xl transition-all duration-300 focus-within:border-primary/50 focus-within:glow-ring glass">
+                    <div class="flex items-end gap-2">
+                        <textarea id="q-input" rows="1" placeholder="Type your question here..."
+                            onkeydown="handleKey(event)" oninput="autoResize(this)"
+                            class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-4 resize-none max-h-40 placeholder-slate-600 text-slate-100 outline-none leading-relaxed">
+                        </textarea>
+                        <div class="pb-1.5 pr-1.5 shrink-0 flex items-center gap-2">
+                            <button class="p-2 text-slate-500 hover:text-primary transition-colors">
+                                <span class="material-symbols-rounded text-xl">mic</span>
+                            </button>
+                            <button onclick="sendQuestion()" id="send-btn"
+                                class="w-11 h-11 bg-primary hover:bg-primary/90 disabled:bg-white/10 disabled:cursor-not-allowed text-black rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/30">
+                                <span class="material-symbols-rounded text-2xl font-bold">arrow_upward</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                <p class="text-center mt-3 text-[10px] text-slate-700 font-medium">
+                    ↵ Send &nbsp;·&nbsp; Shift+↵ Newline &nbsp;·&nbsp; Answers grounded in local indexed context
+                </p>
             </div>
-            <p class="text-center mt-2 text-[10px] text-slate-700">
-                ↵ send &nbsp;·&nbsp; Shift+↵ newline &nbsp;·&nbsp; Answers grounded in documents only
-            </p>
         </div>
     </main>
 
     <!-- ══════════════════════════ RIGHT MINI-SIDEBAR ══════════════════════════ -->
-    <aside class="w-14 border-l border-white/5 bg-sidebar-dark flex flex-col items-center py-5 gap-4 shrink-0">
+    <aside class="w-16 border-l border-white/5 bg-sidebar-dark flex flex-col items-center py-6 gap-6 shrink-0">
         <button onclick="checkHealth()" title="Refresh status"
-            class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
-            <span class="material-symbols-rounded text-lg">refresh</span>
+            class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-all">
+            <span class="material-symbols-rounded text-xl">refresh</span>
         </button>
-        <button onclick="window.open('http://localhost:8000/docs','_blank')" title="Swagger API Docs"
-            class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
-            <span class="material-symbols-rounded text-lg">api</span>
+        <button onclick="window.open('http://localhost:8000/docs','_blank')" title="API Documentation"
+            class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-all">
+            <span class="material-symbols-rounded text-xl">api</span>
         </button>
-        <button onclick="exportChat()" title="Export chat as .txt"
-            class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
-            <span class="material-symbols-rounded text-lg">download</span>
+        <button onclick="exportChat()" title="Export chat"
+            class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-primary transition-all">
+            <span class="material-symbols-rounded text-xl">download</span>
         </button>
-        <div class="mt-auto w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-emerald-300 p-0.5 cursor-default"
+        <div class="mt-auto w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-emerald-300 p-0.5 cursor-default"
             title="DocuMind AI">
             <div class="w-full h-full rounded-full bg-sidebar-dark flex items-center justify-center">
-                <span class="text-[9px] font-bold text-primary">AI</span>
+                <span class="text-[10px] font-bold text-primary">AI</span>
             </div>
         </div>
     </aside>
 
     <!-- Toast -->
-    <div id="toast" class="hidden fixed bottom-6 right-20 z-50 px-4 py-2.5 rounded-xl text-xs font-mono border fade-up">
+    <div id="toast"
+        class="hidden fixed bottom-10 right-24 z-50 px-5 py-3 rounded-2xl text-xs font-mono border fade-up shadow-2xl backdrop-blur-md">
     </div>
 
-    <!-- ══════════════════════════ STYLES for preset buttons ══════════════════════════ -->
+    <!-- ══════════════════════════ PRESET STYLES ══════════════════════════ -->
     <style>
         .preset-btn {
             width: 100%;
             text-align: left;
             display: flex;
-            align-items: flex-start;
-            gap: 6px;
-            padding: 7px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            color: #9ca3af;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #94a3b8;
             background: transparent;
             border: 1px solid transparent;
             cursor: pointer;
-            transition: all .15s;
+            transition: all .2s;
             line-height: 1.4;
         }
 
         .preset-btn:hover {
-            background: rgba(255, 255, 255, .05);
-            color: #e2e8f0;
-            border-color: rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: #f1f5f9;
+            border-color: rgba(255, 255, 255, .06);
         }
 
         .tag {
             font-size: 9px;
-            font-weight: 700;
+            font-weight: 800;
             padding: 2px 5px;
-            border-radius: 4px;
+            border-radius: 6px;
             flex-shrink: 0;
-            margin-top: 1px;
             font-family: monospace;
+            letter-spacing: -0.01em;
         }
 
         .tag-legal {
-            background: rgba(139, 92, 246, .2);
-            color: #c4b5fd;
-        }
-
-        .tag-wiki {
-            background: rgba(59, 130, 246, .2);
-            color: #93c5fd;
-        }
-
-        .tag-demo {
-            background: rgba(34, 197, 94, .2);
-            color: #86efac;
+            background: rgba(59, 130, 246, .15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, .2);
         }
 
         .tag-guard {
-            background: rgba(239, 68, 68, .2);
-            color: #fca5a5;
+            background: rgba(139, 92, 246, .15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, .2);
         }
     </style>
 
@@ -443,7 +439,6 @@
         let stats = { queries: 0, high: 0, notFound: 0, totalMs: 0 };
         let historyLog = [];
 
-        // ── Health ──────────────────────────────────────────────────────────────────
         async function checkHealth() {
             const dot = document.getElementById('status-dot');
             const txt = document.getElementById('status-text');
@@ -451,55 +446,81 @@
             try {
                 const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
                 const d = await r.json();
-                dot.className = 'w-2 h-2 rounded-full bg-primary shrink-0';
-                dot.style.boxShadow = '0 0 6px #4ade80';
-                txt.textContent = 'API online';
+                dot.classList.remove('bg-slate-500', 'bg-red-500');
+                dot.classList.add('bg-primary');
+                dot.style.boxShadow = '0 0 8px #4ade80';
+                txt.textContent = 'API Online';
+                txt.classList.add('text-primary');
                 cc.textContent = `${(d.chunk_count || 0).toLocaleString()} chunks`;
-                if ((d.chunk_count || 0) === 0) showToast('No chunks — click Run /ingest', 'warn');
+                loadDocuments();
             } catch {
-                dot.className = 'w-2 h-2 rounded-full bg-red-500 shrink-0';
-                dot.style.boxShadow = '';
-                txt.textContent = 'API offline';
-                cc.textContent = '—';
-                showToast('API offline. Run: uvicorn app.main:app --port 8000', 'error');
+                dot.classList.remove('bg-primary', 'bg-slate-500');
+                dot.classList.add('bg-red-500');
+                dot.style.boxShadow = '0 0 8px #ef4444';
+                txt.textContent = 'API Offline';
+                txt.classList.remove('text-primary');
+                cc.textContent = '0 chunks';
             }
         }
 
-        // ── Ingest ──────────────────────────────────────────────────────────────────
+        async function loadDocuments() {
+            try {
+                const r = await fetch(`${API}/documents`);
+                const d = await r.json();
+                const container = document.getElementById('indexed-docs-list');
+                const section = document.getElementById('indexed-docs-section');
+                const badge = document.getElementById('doc-count-badge');
+
+                if (d.documents && d.documents.length > 0) {
+                    section.classList.remove('hidden');
+                    badge.textContent = d.count;
+                    container.innerHTML = d.documents.map(doc => {
+                        const icon = doc.endsWith('.pdf') ? 'description' : doc.endsWith('.md') ? 'article' : 'draft';
+                        const color = doc.endsWith('.pdf') ? 'text-red-400' : doc.endsWith('.md') ? 'text-blue-400' : 'text-slate-400';
+                        return `
+                        <button onclick="setQ('Give me a summary of ${doc}')" class="preset-btn group">
+                            <span class="material-symbols-rounded text-base ${color} shrink-0 opacity-70 group-hover:opacity-100">${icon}</span>
+                            <span class="truncate flex-1">${esc(doc)}</span>
+                        </button>`;
+                    }).join('');
+                } else {
+                    section.classList.add('hidden');
+                }
+            } catch (e) {
+                console.error('Failed documents fetch', e);
+            }
+        }
+
         async function ingestDocs() {
             const btn = document.getElementById('ingest-btn');
             btn.disabled = true;
-            btn.innerHTML = `<span class="material-symbols-rounded text-lg spin">sync</span> Ingesting...`;
+            btn.innerHTML = `<span class="material-symbols-rounded spin">sync</span> Ingesting...`;
             try {
                 const r = await fetch(`${API}/ingest`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
                 });
                 const d = await r.json();
-                if (d.status === 'success') {
-                    showToast(`✓ ${d.documents} docs · ${d.total_chunks} chunks indexed`, 'success');
+                if (r.ok) {
+                    showToast(`✓ Indexed ${d.documents} docs / ${d.total_chunks} chunks`, 'success');
                     checkHealth();
-                } else showToast('Ingest failed: ' + JSON.stringify(d), 'error');
-            } catch (e) {
-                showToast('Ingest error: ' + e.message, 'error');
-            } finally {
+                } else showToast(d.detail || 'Ingest failed', 'error');
+            } catch (e) { showToast('Connection failed', 'error'); }
+            finally {
                 btn.disabled = false;
-                btn.innerHTML = `<span class="material-symbols-rounded text-lg">cloud_sync</span> Run /ingest`;
+                btn.innerHTML = `<span class="material-symbols-rounded">cloud_upload</span> Ingest Documents`;
             }
         }
 
-        // ── Send ────────────────────────────────────────────────────────────────────
         async function sendQuestion() {
             const input = document.getElementById('q-input');
-            const sendBtn = document.getElementById('send-btn');
             const q = input.value.trim();
             if (!q) return;
 
-            const topK = parseInt(document.getElementById('top-k').value);
             hideEmpty();
             addUserBubble(q);
             input.value = ''; autoResize(input);
-            sendBtn.disabled = true;
-
             const tid = 'th' + Date.now();
             addThinking(tid);
 
@@ -508,185 +529,138 @@
                 const r = await fetch(`${API}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: q, top_k: topK }),
+                    body: JSON.stringify({ question: q, top_k: parseInt(document.getElementById('top-k').value) }),
                 });
                 const ms = Date.now() - t0;
                 removeEl(tid);
 
                 if (!r.ok) {
-                    const e = await r.json().catch(() => ({ detail: `HTTP ${r.status}` }));
-                    addErrorBubble(e.detail || JSON.stringify(e));
+                    const e = await r.json();
+                    addErrorBubble(e.detail || 'Query failed');
                 } else {
                     const data = await r.json();
                     addBotBubble(data, ms);
-                    updateStats(data, ms);
                     historyLog.push({ q, data, ms });
                 }
             } catch (e) {
                 removeEl(tid);
-                addErrorBubble('Cannot reach API. Is uvicorn running on port 8000?');
-            } finally {
-                sendBtn.disabled = false;
-                scrollBottom();
-            }
+                addErrorBubble('API unreachable. Is backend running?');
+            } finally { scrollBottom(); }
         }
 
-        // ── Bubble builders ─────────────────────────────────────────────────────────
         function addUserBubble(text) {
             const d = mk('div', 'flex justify-end fade-up');
-            d.innerHTML = `
-    <div class="max-w-xl px-4 py-3 rounded-2xl rounded-tr-sm bg-primary/10 border border-primary/20 text-sm text-slate-200 leading-relaxed">
-      ${esc(text)}
-    </div>`;
+            d.innerHTML = `<div class="max-w-xl px-6 py-4 rounded-3xl rounded-tr-sm bg-primary/10 border border-primary/20 text-sm text-slate-100 shadow-lg">${esc(text)}</div>`;
             chat().appendChild(d); scrollBottom();
         }
 
         function addThinking(id) {
-            const d = mk('div', 'flex items-center gap-3 fade-up');
+            const d = mk('div', 'flex items-center gap-4 fade-up');
             d.id = id;
             d.innerHTML = `
-    <div class="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-      <span class="material-symbols-rounded text-primary text-lg">neurology</span>
-    </div>
-    <div class="flex items-center gap-1 px-4 py-3 bg-card-dark border border-white/5 rounded-2xl rounded-tl-sm">
-      <span class="w-1.5 h-1.5 rounded-full bg-primary dot1"></span>
-      <span class="w-1.5 h-1.5 rounded-full bg-primary dot2 mx-1"></span>
-      <span class="w-1.5 h-1.5 rounded-full bg-primary dot3"></span>
-      <span class="text-xs text-slate-500 font-mono ml-2">retrieving &amp; generating...</span>
-    </div>`;
-            chat().appendChild(d); scrollBottom();
+                <div class="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0"><span class="material-symbols-rounded text-primary text-xl">neurology</span></div>
+                <div class="flex items-center gap-1.5 px-6 py-4 bg-white/5 border border-white/5 rounded-3xl rounded-tl-sm glass">
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary dot1"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary dot2"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-primary dot3"></span>
+                </div>`;
+            chat().appendChild(d);
         }
 
         function addBotBubble(data, ms) {
             const isNF = data.answer.toLowerCase().includes('could not find');
-
             let srcHtml = '';
             if (data.sources && data.sources.length) {
-                const items = data.sources.map(s => {
-                    const sc = s.score >= 0.5 ? 'score-high' : s.score >= 0.3 ? 'score-medium' : 'score-low';
-                    return `
-        <div class="flex gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all">
-          <span class="shrink-0 px-1.5 py-0.5 rounded-lg text-[10px] font-mono font-bold ${sc} mt-0.5 leading-5">${s.score.toFixed(3)}</span>
-          <div class="min-w-0">
-            <p class="text-[11px] font-mono text-primary truncate">${esc(s.document)}</p>
-            <p class="text-[11px] text-slate-500 leading-relaxed line-clamp-2 mt-0.5">${esc(s.snippet)}</p>
-          </div>
-        </div>`;
-                }).join('');
-
                 srcHtml = `
-      <div class="px-4 pb-4">
-        <p class="text-[10px] text-slate-600 font-mono uppercase tracking-widest mb-2 pt-3 border-t border-white/5 flex items-center gap-1.5">
-          <span class="material-symbols-rounded text-xs">database</span>
-          ${data.sources.length} source${data.sources.length > 1 ? 's' : ''} · ${ms}ms
-        </p>
-        <div class="space-y-1.5">${items}</div>
-      </div>`;
+                <div class="border-t border-white/5 mt-2">
+                    <button onclick="this.nextElementSibling.classList.toggle('hidden'); const icon = this.querySelector('.toggle-icon'); icon.textContent = this.nextElementSibling.classList.contains('hidden') ? 'expand_more' : 'expand_less'" 
+                            class="w-full px-6 py-3 flex items-center justify-between hover:bg-white/5 transition-colors group text-left outline-none">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-rounded text-base text-primary/50 group-hover:text-primary transition-colors">description</span>
+                            <span class="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Related Documents (${data.sources.length})</span>
+                        </div>
+                        <span class="material-symbols-rounded text-slate-500 group-hover:text-primary transition-colors toggle-icon">expand_more</span>
+                    </button>
+                    <div class="hidden px-6 pb-6 pt-2 space-y-2">
+                        <div class="grid grid-cols-1 gap-2">
+                            ${data.sources.map(s => `
+                            <div class="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[10px] text-primary font-mono">${esc(s.document)}</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/60 font-mono">${s.score.toFixed(3)}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 line-clamp-1 italic">"${esc(s.snippet)}"</p>
+                            </div>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
             }
 
-            const d = mk('div', 'flex gap-3 fade-up');
+            const d = mk('div', 'flex gap-4 fade-up items-start');
             d.innerHTML = `
-    <div class="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 mt-1">
-      <span class="material-symbols-rounded text-primary text-lg">neurology</span>
-    </div>
-    <div class="flex-1 max-w-2xl">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="text-xs font-mono text-slate-500">DocuMind</span>
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold badge-${data.confidence}">${data.confidence.toUpperCase()}</span>
-      </div>
-      <div class="bg-card-dark border border-white/5 rounded-2xl rounded-tl-sm overflow-hidden">
-        <div class="px-4 py-3.5 text-sm leading-relaxed ${isNF ? 'text-slate-500 italic font-mono text-xs' : 'text-slate-200'}">
-          ${esc(data.answer)}
-        </div>
-        ${srcHtml}
-      </div>
-    </div>`;
+                <div class="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0 mt-6 shadow-lg shadow-primary/10"><span class="material-symbols-rounded text-primary text-xl">neurology</span></div>
+                <div class="flex-1 max-w-3xl">
+                    <div class="flex items-center gap-3 mb-2 ml-1">
+                        <span class="text-xs font-bold text-slate-400">DocuMind AI</span>
+                        <span class="px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter badge-${data.confidence}">${data.confidence.toUpperCase()}</span>
+                        <span class="text-[10px] text-slate-600 font-mono ml-auto">${ms}ms</span>
+                    </div>
+                    <div class="bg-white/5 border border-white/5 rounded-3xl rounded-tl-sm overflow-hidden glass shadow-2xl">
+                        <div class="px-6 py-5 text-sm leading-relaxed ${isNF ? 'text-slate-500 italic' : 'text-slate-200'}">
+                            ${esc(data.answer)}
+                        </div>
+                        ${srcHtml}
+                    </div>
+                </div>`;
             chat().appendChild(d);
         }
 
         function addErrorBubble(msg) {
-            const d = mk('div', 'flex gap-3 fade-up');
+            const d = mk('div', 'flex gap-4 fade-up');
             d.innerHTML = `
-    <div class="w-8 h-8 bg-red-500/10 rounded-xl flex items-center justify-center shrink-0">
-      <span class="material-symbols-rounded text-red-400 text-lg">error</span>
-    </div>
-    <div class="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl rounded-tl-sm text-xs text-red-300 font-mono max-w-lg">
-      ${esc(msg)}
-    </div>`;
+                <div class="w-10 h-10 bg-red-500/10 rounded-2xl flex items-center justify-center shrink-0"><span class="material-symbols-rounded text-red-400">error</span></div>
+                <div class="px-6 py-4 bg-red-500/10 border border-red-500/20 rounded-3xl rounded-tl-sm text-xs text-red-300 font-mono max-w-lg shadow-lg">
+                    ${esc(msg)}
+                </div>`;
             chat().appendChild(d);
         }
 
-        // ── Stats ───────────────────────────────────────────────────────────────────
-        function updateStats(data, ms) {
-            stats.queries++; stats.totalMs += ms;
-            if (data.confidence === 'high') stats.high++;
-            if (data.answer.toLowerCase().includes('could not find')) stats.notFound++;
-            document.getElementById('stat-queries').textContent = stats.queries;
-            document.getElementById('stat-high').textContent = stats.high;
-            document.getElementById('stat-notfound').textContent = stats.notFound;
-            document.getElementById('stat-latency').textContent = Math.round(stats.totalMs / stats.queries);
-        }
-
-        // ── Utils ───────────────────────────────────────────────────────────────────
-        function setQ(q) {
-            const el = document.getElementById('q-input');
-            el.value = q; autoResize(el); el.focus();
-        }
-        function handleKey(e) {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuestion(); }
-        }
-        function autoResize(el) {
-            el.style.height = 'auto';
-            el.style.height = Math.min(el.scrollHeight, 128) + 'px';
-        }
-        function hideEmpty() {
-            document.getElementById('empty-state')?.remove();
-        }
+        function setQ(q) { const el = document.getElementById('q-input'); el.value = q; autoResize(el); el.focus(); }
+        function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuestion(); } }
+        function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 160) + 'px'; }
+        function hideEmpty() { document.getElementById('empty-state')?.classList.add('hidden'); }
         function clearChat() {
-            stats = { queries: 0, high: 0, notFound: 0, totalMs: 0 }; historyLog = [];
-            ['stat-queries', 'stat-high', 'stat-notfound'].forEach(id => document.getElementById(id).textContent = '0');
-            document.getElementById('stat-latency').textContent = '—';
-            const c = chat();
-            c.innerHTML = `<div id="empty-state" class="h-full flex flex-col items-center justify-center text-center px-4 min-h-96">
-    <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-5 glow">
-      <span class="material-symbols-rounded text-primary text-4xl">neurology</span>
-    </div>
-    <h2 class="text-2xl font-display font-bold mb-2">Chat cleared</h2>
-    <p class="text-slate-500 text-sm">Ask a new question below or pick a preset from the sidebar.</p>
-  </div>`;
+            historyLog = []; chat().innerHTML = '';
+            const e = mk('div', 'h-full flex flex-col items-center justify-center text-center px-4');
+            e.id = 'empty-state';
+            e.innerHTML = `<div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6"><span class="material-symbols-rounded text-primary text-3xl">chat_bubble</span></div><h2 class="text-xl font-bold">Conversation cleared</h2>`;
+            chat().appendChild(e);
         }
         function exportChat() {
-            if (!historyLog.length) { showToast('No chat to export yet', 'warn'); return; }
-            const txt = historyLog.map((h, i) =>
-                `Q${i + 1}: ${h.q}\nAnswer: ${h.data.answer}\nConfidence: ${h.data.confidence} | Latency: ${h.ms}ms\nSources: ${h.data.sources.map(s => s.document).join(', ')}`
-            ).join('\n\n' + '─'.repeat(50) + '\n\n');
-            const blob = new Blob([`DocuMind AI — Export\n${'═'.repeat(50)}\n\n${txt}`], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `documind-${Date.now()}.txt`; a.click();
+            if (!historyLog.length) return showToast('Nothing to export', 'warn');
+            const txt = historyLog.map((h, i) => `Q: ${h.q}\nA: ${h.data.answer}\n\n`).join('---');
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'chat.txt'; a.click();
+        }
+        function filterSidebar() {
+            const q = document.getElementById('doc-search').value.toLowerCase();
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.style.display = btn.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+            });
         }
         function chat() { return document.getElementById('chat-area'); }
-        function scrollBottom() { const c = chat(); c.scrollTop = c.scrollHeight; }
+        function scrollBottom() { chat().scrollTop = chat().scrollHeight; }
         function removeEl(id) { document.getElementById(id)?.remove(); }
         function mk(tag, cls) { const el = document.createElement(tag); el.className = cls; return el; }
-        function esc(s) {
-            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-        }
+        function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>'); }
         function showToast(msg, type = 'error') {
             const t = document.getElementById('toast');
-            const map = {
-                success: 'bg-emerald-950 border-emerald-500/30 text-emerald-300',
-                warn: 'bg-yellow-950 border-yellow-500/30 text-yellow-300',
-                error: 'bg-red-950 border-red-500/30 text-red-300',
-            };
-            t.className = `fixed bottom-6 right-20 z-50 px-4 py-2.5 rounded-xl text-xs font-mono border fade-up ${map[type] || map.error}`;
-            t.textContent = msg;
-            t.classList.remove('hidden');
-            clearTimeout(t._t);
-            t._t = setTimeout(() => t.classList.add('hidden'), 4000);
+            const map = { success: 'bg-emerald-900 border-emerald-500/30 text-emerald-100', warn: 'bg-yellow-900 border-yellow-500/30 text-yellow-100', error: 'bg-red-900 border-red-500/30 text-red-100' };
+            t.className = `fixed bottom-10 right-24 z-50 px-6 py-3 rounded-2xl text-xs font-mono border fade-up shadow-2xl backdrop-blur-md ${map[type]}`;
+            t.textContent = msg; t.classList.remove('hidden');
+            clearTimeout(t._t); t._t = setTimeout(() => t.classList.add('hidden'), 4000);
         }
 
-        // Init
         checkHealth();
         setInterval(checkHealth, 30000);
         document.getElementById('q-input').focus();

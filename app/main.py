@@ -3,7 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from dotenv import load_dotenv
@@ -12,7 +12,9 @@ from app.ingestion import ingest_documents
 from app.embeddings import build_vector_store, load_vector_store, get_embedding_model, get_chroma_client
 from app.retrieval import retrieve, format_sources
 from app.generation import generate_answer, get_llm_pipeline, NOT_FOUND_RESPONSE
+
 load_dotenv()
+
 LLM_MODEL_NAME = os.getenv('LLM_MODEL_NAME', 'google/flan-t5-base')
 EMBEDDING_MODEL_NAME = os.getenv('EMBEDDING_MODEL_NAME', 'all-MiniLM-L6-v2')
 TOP_K = int(os.getenv('TOP_K', '10'))
@@ -21,11 +23,14 @@ DOCS_DIR = os.getenv('DOCS_DIR', 'docs')
 CHROMA_DB_DIR = os.getenv('CHROMA_DB_DIR', 'chroma_db')
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '500'))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '50'))
+
 logger.remove()
 logger.add(sys.stderr, level='INFO', format='<green>{time:HH:mm:ss}</green> | <level>{level}</level> | {message}')
 logger.add('logs/app.log', rotation='10 MB', retention='7 days', level='DEBUG')
 os.makedirs('logs', exist_ok=True)
+
 app_state = {'collection': None, 'ready': False}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,13 +51,26 @@ async def lifespan(app: FastAPI):
         logger.warning('No vector store found. POST /ingest to index documents first.')
     yield
     logger.info('=== RAG Q&A Bot shutting down ===')
+
+
 app = FastAPI(title='Document Q&A Bot (RAG)', description='Answer questions from your documents using Retrieval-Augmented Generation. POST /ingest to index docs, then POST /ask to query.', version='1.0.0', lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
+
+
+@app.get('/', response_class=HTMLResponse)
+async def get_ui():
+    """Serves the Document Q&A Dashboard."""
+    ui_path = os.path.join(os.getcwd(), 'ui.html')
+    if os.path.exists(ui_path):
+        return FileResponse(ui_path)
+    return HTMLResponse(content='<h1>DocuMind AI</h1><p>ui.html not found in root directory.</p>', status_code=404)
+
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f'Unhandled exception on {request.url}: {exc}')
     return JSONResponse(status_code=500, content={'detail': 'An internal error occurred. Check server logs for details.'})
+
 
 @app.get('/health', response_model=HealthResponse, tags=['System'])
 async def health_check():
@@ -67,8 +85,9 @@ async def health_check():
             store_status = 'not_initialized'
     return HealthResponse(status='ok' if app_state['ready'] else 'degraded', vector_store=store_status, chunk_count=chunk_count, model_loaded=True)
 
+
 @app.post('/ingest', response_model=IngestResponse, tags=['Ingestion'])
-async def ingest(request: IngestRequest=IngestRequest()):
+async def ingest(request: IngestRequest = IngestRequest()):
     logger.info(f'Starting ingestion from: {request.docs_dir}')
     chunks = ingest_documents(docs_dir=request.docs_dir, chunk_size=request.chunk_size, overlap=request.chunk_overlap)
     if not chunks:
@@ -84,6 +103,7 @@ async def ingest(request: IngestRequest=IngestRequest()):
     logger.success(f'Ingestion complete: {len(doc_names)} docs, {len(chunks)} chunks')
     return IngestResponse(status='success', message=f'Successfully indexed {len(doc_names)} document(s).', documents=len(doc_names), total_chunks=len(chunks))
 
+
 @app.post('/ask', response_model=AskResponse, tags=['Q&A'])
 async def ask(request: AskRequest):
     if not app_state['ready'] or app_state['collection'] is None:
@@ -97,3 +117,20 @@ async def ask(request: AskRequest):
         sources = []
     logger.info(f'Answer generated | confidence={confidence} | sources={len(sources)}')
     return AskResponse(answer=answer, sources=sources, confidence=confidence, question=request.question)
+
+
+@app.get('/documents', tags=['Information'])
+async def list_documents():
+    """Returns a list of unique document names currently indexed in the vector store."""
+    if not app_state['ready'] or app_state['collection'] is None:
+        return {'documents': [], 'count': 0}
+    try:
+        # Get all metadatas to extract unique document names
+        results = app_state['collection'].get(include=['metadatas'])
+        metadatas = results.get('metadatas', [])
+        # Extract unique doc_names
+        doc_names = sorted(list(set((m.get('doc_name') for m in metadatas if m and m.get('doc_name')))))
+        return {'documents': doc_names, 'count': len(doc_names)}
+    except Exception as e:
+        logger.error(f'Failed to list documents: {e}')
+        return {'documents': [], 'count': 0}
