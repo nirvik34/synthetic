@@ -1,5 +1,6 @@
 from typing import List, Dict, Tuple, Any
 from dataclasses import dataclass
+import os
 import chromadb
 import numpy as np
 from loguru import logger
@@ -17,7 +18,33 @@ class RetrievalResult:
 def retrieve(query: str, collection: chromadb.Collection, top_k: int=5, similarity_threshold: float=0.3, embedding_model_name: str='all-MiniLM-L6-v2') -> Tuple[List[RetrievalResult], str]:
     query_vector = embed_query(query, model_name=embedding_model_name)
     candidate_k = max(top_k * 2, 10)
-    results = collection.query(query_embeddings=[query_vector], n_results=candidate_k, include=['documents', 'metadatas', 'distances'])
+    
+    # --- Metadata-aware Filtering ---
+    # Detect if any indexed document is explicitly mentioned in the query
+    where_filter = None
+    try:
+        query_lower = query.lower()
+        # Get all unique doc names currently in the collection
+        all_docs_metadata = collection.get(include=['metadatas'])
+        unique_docs = list(set(m['doc_name'] for m in all_docs_metadata['metadatas'] if 'doc_name' in m))
+        
+        for doc_name in unique_docs:
+            # Check if full filename OR base name (without ext) is mentioned
+            base_name = os.path.splitext(doc_name)[0]
+            if doc_name.lower() in query_lower or (len(base_name) > 4 and base_name.lower() in query_lower):
+                logger.info(f"Explicit document mention detected: '{doc_name}'")
+                where_filter = {"doc_name": doc_name}
+                break
+    except Exception as e:
+        logger.warning(f"Metadata filtering check failed: {e}")
+
+    # Query with optional filter
+    results = collection.query(
+        query_embeddings=[query_vector], 
+        n_results=candidate_k, 
+        include=['documents', 'metadatas', 'distances'],
+        where=where_filter
+    )
     candidates: List[RetrievalResult] = []
     if not results or not results['ids']:
         return ([], 'low')

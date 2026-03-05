@@ -30,6 +30,42 @@ export default function Home() {
   // Lifted state for document awareness
   const [docCount, setDocCount] = useState(0);
   const [documents, setDocuments] = useState<string[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // --- Persistence Logic ---
+
+  // Load from local storage on mount
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const savedMessages = localStorage.getItem("documind_messages");
+      if (savedMessages) setMessages(JSON.parse(savedMessages));
+
+      const savedHistoryLog = localStorage.getItem("documind_historyLog");
+      if (savedHistoryLog) setHistoryLog(JSON.parse(savedHistoryLog));
+
+      const savedSidebarHistory = localStorage.getItem("documind_sidebarHistory");
+      if (savedSidebarHistory) setSidebarHistory(JSON.parse(savedSidebarHistory));
+
+      const savedConversationMemory = localStorage.getItem("documind_conversationMemory");
+      if (savedConversationMemory) setConversationMemory(JSON.parse(savedConversationMemory));
+    } catch (e) {
+      console.error("Failed to load state from localStorage:", e);
+    }
+  }, []);
+
+  // Save to local storage on any state change
+  useEffect(() => {
+    if (!isMounted) return;
+    try {
+      localStorage.setItem("documind_messages", JSON.stringify(messages));
+      localStorage.setItem("documind_historyLog", JSON.stringify(historyLog));
+      localStorage.setItem("documind_sidebarHistory", JSON.stringify(sidebarHistory));
+      localStorage.setItem("documind_conversationMemory", JSON.stringify(conversationMemory));
+    } catch (e) {
+      console.error("Failed to save state to localStorage:", e);
+    }
+  }, [messages, historyLog, sidebarHistory, conversationMemory, isMounted]);
 
   const loadDocs = useCallback(async () => {
     try {
@@ -141,8 +177,17 @@ export default function Home() {
     setMessages([]);
     setHistoryLog([]);
     setConversationMemory([]);
+    setSidebarHistory([]);
     setSelectedDocContent(null);
     setSelectedDocName(null);
+    try {
+      localStorage.removeItem("documind_messages");
+      localStorage.removeItem("documind_historyLog");
+      localStorage.removeItem("documind_sidebarHistory");
+      localStorage.removeItem("documind_conversationMemory");
+    } catch (e) {
+      console.error("Failed to clear localStorage:", e);
+    }
   };
 
   const viewDocument = useCallback(async (docName: string | null) => {

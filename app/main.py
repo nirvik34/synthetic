@@ -197,7 +197,7 @@ async def ask(request: AskRequest):
             # If overlap is very low, block it.
             # Be much more lenient if a filename was explicitly mentioned (meta-query)
             if mentions_filename:
-                threshold = 0.10
+                threshold = 0.05 # Extremely lenient if doc is named
             else:
                 threshold = 0.20 if confidence != 'low' else 0.25
                 
@@ -205,8 +205,11 @@ async def ask(request: AskRequest):
                 is_not_found = True
                 hallucination_reason = f"Low overlap ratio ({overlap_ratio:.0%}) with query terms {query_words}"
         else:
-            # If no key terms (e.g. "tell me more"), allow if confidence is not low
-            if confidence == 'low':
+            # If no key terms (e.g. "tell me more about this document"), 
+            # and a filename was NOT matched, then block it if confidence is low.
+            # But if a filename was matched (mentions_filename), we allow it!
+            mentions_filename = any(any(w in r.document.lower() for w in raw_words) for r in results)
+            if not mentions_filename and confidence == 'low':
                 is_not_found = True
                 hallucination_reason = "No key terms in query and low confidence retrieval"
 
