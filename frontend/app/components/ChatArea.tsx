@@ -298,6 +298,26 @@ export default function ChatArea({ messages, onFollowUp, onCitationClick }: Chat
                                     >
                                         {msg.data.confidence}
                                     </span>
+                                    <button
+                                        onClick={() => {
+                                            if (typeof window !== "undefined" && window.speechSynthesis) {
+                                                if (window.speechSynthesis.speaking) {
+                                                    window.speechSynthesis.cancel();
+                                                } else {
+                                                    const cleanText = msg.data!.answer.replace(/\[\d+\]/g, "");
+                                                    const utterance = new SpeechSynthesisUtterance(cleanText);
+                                                    utterance.lang = "en-US";
+                                                    window.speechSynthesis.speak(utterance);
+                                                }
+                                            }
+                                        }}
+                                        className="text-[#525252] hover:text-white transition-colors"
+                                        title="Read Aloud"
+                                    >
+                                        <span className="material-symbols-rounded text-[16px]">
+                                            volume_up
+                                        </span>
+                                    </button>
                                     <span className="text-[11px] text-[#525252] font-mono ml-auto">
                                         {msg.ms}ms
                                     </span>

@@ -53,6 +53,7 @@ runs entirely on your machine, and never sends a single byte to the cloud.
 - **File upload API** — drop new documents in via `POST /upload-file` and re-ingest
 - **PDF support** — dict-mode PyMuPDF extraction preserves block/line structure
 - **Metadata-aware retrieval** — mention a filename in your query to scope search to that document
+- **Voice interaction** — built-in **Speech-to-Text** (mic input) and **Text-to-Speech** (read aloud responses)
 
 ---
 
