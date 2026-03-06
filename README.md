@@ -2,6 +2,10 @@
 
 A production-ready **Retrieval-Augmented Generation (RAG)** system that answers questions from your documents using only local models — no API keys, no internet, no data leaks. Built with FastAPI, ChromaDB, Sentence-Transformers, and a Next.js chat frontend.
 
+**Presentation Link:** [PPT Link](https://docs.google.com/presentation/d/1sWPu3xISzh_Dwt3a7qoKiGoWPf54P63x/edit?usp=sharing&ouid=113617178399842912008&rtpof=true&sd=true)
+
+`RAG` `Local-LLM` `FastAPI` `Next.js` `ChromaDB` `Privacy-First` `Legal-AI`
+
 ---
 
 ## Table of Contents
@@ -314,7 +318,29 @@ Question
 
 ## Configuration
 
-All defaults can be overridden via environment variables (or a `.env` file):
+### Example `.env`
+
+Create a `.env` file in the root directory and configure it as needed:
+
+```bash
+# ── Model Settings ────────────────────────────────────────
+LLM_MODEL_NAME=google/flan-t5-base
+EMBEDDING_MODEL_NAME=all-MiniLM-L6-v2
+
+# ── Retrieval Settings ────────────────────────────────────
+TOP_K=5                        # Number of chunks to retrieve
+SIMILARITY_THRESHOLD=0.15       # Below this = low confidence
+
+# ── Chunking Settings ─────────────────────────────────────
+CHUNK_SIZE=300                 # characters per chunk
+CHUNK_OVERLAP=80               # overlap between chunks
+
+# ── Paths ─────────────────────────────────────────────────
+DOCS_DIR=docs
+CHROMA_DB_DIR=chroma_db
+```
+
+All defaults can be overridden via environment variables:
 
 | Variable | Default | Description |
 |---|---|---|
