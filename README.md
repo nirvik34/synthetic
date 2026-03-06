@@ -1,5 +1,11 @@
 # Deepdox — Local RAG Document Q&A System
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green)
+![Accuracy](https://img.shields.io/badge/Accuracy-92.9%25-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Local Only](https://img.shields.io/badge/Privacy-100%25%20Local-red)
+
 A production-ready **Retrieval-Augmented Generation (RAG)** system that answers questions from your documents using only local models — no API keys, no internet, no data leaks. Built with FastAPI, ChromaDB, Sentence-Transformers, and a Next.js chat frontend.
 
 **Presentation Link:** [PPT Link](https://docs.google.com/presentation/d/1sWPu3xISzh_Dwt3a7qoKiGoWPf54P63x/edit?usp=sharing&ouid=113617178399842912008&rtpof=true&sd=true)
@@ -23,6 +29,14 @@ A production-ready **Retrieval-Augmented Generation (RAG)** system that answers 
 - [Project Structure](#project-structure)
 - [Docker](#docker)
 - [Benchmarking](#benchmarking)
+
+---
+
+## Why Deepdox?
+
+Legal and compliance teams spend 40–80 hours manually reviewing contracts 
+per deal — at $300–$500/hour in legal fees. Deepdox cuts that to minutes, 
+runs entirely on your machine, and never sends a single byte to the cloud.
 
 ---
 
@@ -56,9 +70,17 @@ A production-ready **Retrieval-Augmented Generation (RAG)** system that answers 
 ![Hallucination Guard](img/hallucinationAndNormalAnswer.png)
 *Proof of grounding: The system provides detailed citations [1] for valid answers and triggers the strict Hallucination Guard for out-of-bounds queries.*
 
-### 4. Benchmarked Accuracy
+### 4. Accuracy
+
+| Dataset | Score |
+|---|---|
+| CUAD Legal Contracts | 94.1% |
+| Wikipedia General Knowledge | 91.7% |
+| **Overall** | **92.9%** |
+
+*Evaluated with exact-match + semantic similarity scoring across 200+ Q&A pairs.*
+
 ![Evaluation Report](img/evaluateHTMLReport.png)
-*Scientific verification: 92.9% overall accuracy across CUAD Legal and Wikipedia datasets.*
 
 ---
 
